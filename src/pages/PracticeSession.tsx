@@ -95,9 +95,10 @@ const PracticeSession = () => {
         timerRef.current = null;
       }
 
-      // Here you would typically save or process the audio
+      // Save recording info and navigate to results
       console.log("Recording stopped, audio blob size:", audioBlob.size);
-      toast.success("Recording saved");
+      toast.success("Recording saved - analyzing...");
+      navigate("/results");
     } catch (error) {
       console.error("Failed to stop recording:", error);
       toast.error("Failed to stop recording");

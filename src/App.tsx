@@ -8,6 +8,7 @@ import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import PreparePractice from "./pages/PreparePractice";
 import PracticeSession from "./pages/PracticeSession";
+import SessionResults from "./pages/SessionResults";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/prepare" element={<PreparePractice />} />
               <Route path="/session" element={<PracticeSession />} />
+              <Route path="/results" element={<SessionResults />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
