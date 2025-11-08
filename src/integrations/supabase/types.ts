@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      practice_sessions: {
+        Row: {
+          audio_url: string | null
+          completed_at: string
+          content_feedback: Json
+          delivery_feedback: Json
+          duration: number
+          filler_word_count: number
+          fluency_score: number
+          id: string
+          prompts: Json
+          scenario_id: string | null
+          speech_rate: number
+          transcript: string | null
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          audio_url?: string | null
+          completed_at?: string
+          content_feedback?: Json
+          delivery_feedback?: Json
+          duration: number
+          filler_word_count: number
+          fluency_score: number
+          id?: string
+          prompts?: Json
+          scenario_id?: string | null
+          speech_rate: number
+          transcript?: string | null
+          user_id: string
+          word_count: number
+        }
+        Update: {
+          audio_url?: string | null
+          completed_at?: string
+          content_feedback?: Json
+          delivery_feedback?: Json
+          duration?: number
+          filler_word_count?: number
+          fluency_score?: number
+          id?: string
+          prompts?: Json
+          scenario_id?: string | null
+          speech_rate?: number
+          transcript?: string | null
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_sessions_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scenarios: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          prompts: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          prompts?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          prompts?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

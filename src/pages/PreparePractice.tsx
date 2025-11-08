@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { saveScenario, StoredScenario } from "@/lib/storage";
 
 // Icon options for scenario creation
 const iconOptions = [
@@ -231,7 +232,16 @@ const PreparePractice = () => {
       return;
     }
 
-    // TODO: Save scenario to storage
+    const newScenario: StoredScenario = {
+      id: Date.now().toString(),
+      title: scenarioTitle,
+      description: scenarioDescription,
+      icon: selectedIcon,
+      prompts: filledPrompts,
+      createdAt: new Date().toISOString(),
+    };
+
+    saveScenario(newScenario);
     toast.success("Scenario saved successfully!");
     navigate("/");
   };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,20 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
+import { getScenarios, deleteScenario, StoredScenario } from "@/lib/storage";
+
+// Map icon strings to components
+const iconMap: Record<string, React.ElementType> = {
+  mic: Mic,
+  briefcase: Briefcase,
+  users: Users,
+  heart: Heart,
+  coffee: Coffee,
+  phone: Phone,
+  presentation: Presentation,
+  message: MessageSquare,
+  usercheck: UserCheck,
+};
 
 // Types
 interface Scenario {
@@ -31,10 +45,6 @@ interface Scenario {
   icon: React.ElementType;
   title: string;
   description: string;
-}
-
-interface UserScenario extends Scenario {
-  createdAt: Date;
 }
 
 // Sample data for pre-built scenarios
@@ -103,7 +113,13 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
 
 const Index = () => {
   const navigate = useNavigate();
-  const [userScenarios, setUserScenarios] = useState<UserScenario[]>([]);
+  const [userScenarios, setUserScenarios] = useState<StoredScenario[]>([]);
+
+  useEffect(() => {
+    // Load scenarios from localStorage on mount
+    const loadedScenarios = getScenarios();
+    setUserScenarios(loadedScenarios);
+  }, []);
 
   const handleCreateNew = () => {
     navigate("/prepare?mode=scenario");
@@ -114,6 +130,7 @@ const Index = () => {
   };
 
   const handleDelete = (id: string) => {
+    deleteScenario(id);
     setUserScenarios(prev => prev.filter(s => s.id !== id));
     toast.success("Scenario deleted");
   };
@@ -164,36 +181,39 @@ const Index = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {userScenarios.map((scenario) => (
-                <div
-                  key={scenario.id}
-                  className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                >
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <scenario.icon className="h-5 w-5 text-primary" />
+              {userScenarios.map((scenario) => {
+                const IconComponent = iconMap[scenario.icon] || Mic;
+                return (
+                  <div
+                    key={scenario.id}
+                    className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <IconComponent className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold mb-1">{scenario.title}</h4>
+                      <p className="text-sm text-muted-foreground">{scenario.description}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(scenario.id)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(scenario.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold mb-1">{scenario.title}</h4>
-                    <p className="text-sm text-muted-foreground">{scenario.description}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEdit(scenario.id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(scenario.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

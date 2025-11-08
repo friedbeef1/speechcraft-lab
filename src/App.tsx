@@ -5,10 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppLayout } from "@/components/AppLayout";
+import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 import Index from "./pages/Index";
 import PreparePractice from "./pages/PreparePractice";
 import PracticeSession from "./pages/PracticeSession";
 import SessionResults from "./pages/SessionResults";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +21,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <OnboardingTutorial onComplete={() => console.log("Tutorial completed")} />
         <BrowserRouter>
           <AppLayout>
             <Routes>
@@ -26,6 +29,7 @@ const App = () => (
               <Route path="/prepare" element={<PreparePractice />} />
               <Route path="/session" element={<PracticeSession />} />
               <Route path="/results" element={<SessionResults />} />
+              <Route path="/history" element={<History />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
