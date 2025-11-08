@@ -213,8 +213,7 @@ const PreparePractice = () => {
       toast.error("Please add at least one prompt");
       return;
     }
-    toast.success("Starting practice session...");
-    // Navigate to practice session page (to be created)
+    navigate("/session");
   };
 
   const handleSaveScenario = () => {

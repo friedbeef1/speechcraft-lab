@@ -1,0 +1,271 @@
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Mic,
+  Square,
+  X,
+} from "lucide-react";
+import { AudioRecorder } from "@/utils/AudioRecorder";
+import { Waveform } from "@/components/Waveform";
+import { CircularTimer } from "@/components/CircularTimer";
+import { TipCard } from "@/components/TipCard";
+import { toast } from "sonner";
+
+// Sample prompts (in production, these would come from the previous screen)
+const samplePrompts = [
+  "Describe your ideal work environment and explain why it would help you be productive.",
+  "Share a challenging situation you faced recently and how you overcame it.",
+  "Explain a complex topic you're passionate about to someone who knows nothing about it.",
+  "Discuss your thoughts on work-life balance and how you maintain it.",
+  "Describe a time when you had to adapt quickly to a significant change.",
+];
+
+const tips = [
+  "Take a deep breath before speaking. Pause for emphasis, not filler words.",
+  "Focus on one main point. Structure your thoughts: beginning, middle, end.",
+  "Use specific examples to make your points more memorable and engaging.",
+  "Vary your pace and tone to keep your audience interested.",
+  "If you lose your train of thought, it's okay to pause and collect yourself.",
+];
+
+const PracticeSession = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [fillerWordCount, setFillerWordCount] = useState(0);
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const currentPrompt = samplePrompts[currentCardIndex];
+  const currentTip = tips[currentCardIndex];
+  const totalCards = samplePrompts.length;
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      if (recorderRef.current?.isRecording()) {
+        recorderRef.current.stop();
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    try {
+      const recorder = new AudioRecorder();
+      await recorder.start();
+      recorderRef.current = recorder;
+      setAnalyser(recorder.getAnalyser());
+      setIsRecording(true);
+      setRecordingTime(0);
+      setFillerWordCount(0);
+
+      // Start timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+
+      toast.success("Recording started");
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+      toast.error("Failed to access microphone");
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recorderRef.current) return;
+
+    try {
+      const audioBlob = await recorderRef.current.stop();
+      setIsRecording(false);
+      setAnalyser(null);
+
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
+      // Here you would typically save or process the audio
+      console.log("Recording stopped, audio blob size:", audioBlob.size);
+      toast.success("Recording saved");
+    } catch (error) {
+      console.error("Failed to stop recording:", error);
+      toast.error("Failed to stop recording");
+    }
+  };
+
+  const handleFillerWord = () => {
+    setFillerWordCount((prev) => prev + 1);
+  };
+
+  const nextCard = () => {
+    if (currentCardIndex < totalCards - 1) {
+      setCurrentCardIndex((prev) => prev + 1);
+      if (isRecording) {
+        stopRecording();
+      }
+    }
+  };
+
+  const previousCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex((prev) => prev - 1);
+      if (isRecording) {
+        stopRecording();
+      }
+    }
+  };
+
+  const handleTimerComplete = () => {
+    toast.info("Time's up for this card!");
+    if (isRecording) {
+      stopRecording();
+    }
+  };
+
+  const handleExit = () => {
+    if (isRecording) {
+      stopRecording();
+    }
+    navigate("/");
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6 pb-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Badge variant="secondary" className="text-lg px-4 py-2">
+          Card {currentCardIndex + 1} of {totalCards}
+        </Badge>
+        <Button variant="ghost" size="icon" onClick={handleExit}>
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Prompt Card */}
+      <Card className="border-2 border-primary/20 animate-fade-in">
+        <CardContent className="py-12 px-8">
+          <p className="text-2xl text-center leading-relaxed">
+            {currentPrompt}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Navigation Buttons */}
+      <div className="flex justify-between items-center gap-4">
+        <Button
+          variant="outline"
+          onClick={previousCard}
+          disabled={currentCardIndex === 0}
+          className="gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          onClick={nextCard}
+          disabled={currentCardIndex === totalCards - 1}
+          className="gap-2"
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Record Button */}
+      <div className="flex justify-center py-4">
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:scale-105 ${
+            isRecording
+              ? "bg-red-500 hover:bg-red-600 animate-pulse"
+              : "bg-primary hover:bg-primary/90"
+          }`}
+        >
+          {isRecording ? (
+            <Square className="h-10 w-10 text-white fill-white" />
+          ) : (
+            <Mic className="h-10 w-10 text-white" />
+          )}
+        </button>
+      </div>
+
+      {/* Waveform and Timers */}
+      {isRecording && (
+        <div className="space-y-6 animate-fade-in">
+          <Waveform
+            analyser={analyser}
+            isRecording={isRecording}
+            onFillerWord={handleFillerWord}
+          />
+
+          <div className="flex items-center justify-center gap-8">
+            {/* Standard Timer */}
+            <Card>
+              <CardContent className="py-6 px-8">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Recording Time
+                  </p>
+                  <p className="text-3xl font-bold font-mono">
+                    {formatTime(recordingTime)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Circular Countdown Timer */}
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                Time Remaining
+              </p>
+              <CircularTimer
+                seconds={60}
+                isActive={isRecording}
+                onComplete={handleTimerComplete}
+              />
+            </div>
+
+            {/* Filler Word Counter */}
+            <Card>
+              <CardContent className="py-6 px-8">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Filler Words
+                  </p>
+                  <p className="text-3xl font-bold text-amber-500">
+                    {fillerWordCount}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Tip Card */}
+      <div className="max-w-2xl mx-auto">
+        <TipCard tip={currentTip} />
+      </div>
+    </div>
+  );
+};
+
+export default PracticeSession;
