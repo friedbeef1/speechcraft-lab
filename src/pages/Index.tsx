@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -101,10 +102,11 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [userScenarios, setUserScenarios] = useState<UserScenario[]>([]);
 
   const handleCreateNew = () => {
-    toast.info("Create scenario feature coming soon!");
+    navigate("/prepare?mode=scenario");
   };
 
   const handleEdit = (id: string) => {
@@ -121,7 +123,7 @@ const Index = () => {
   };
 
   const handleFreestyle = () => {
-    toast.success("Starting freestyle practice session");
+    navigate("/prepare?mode=freestyle");
   };
 
   return (
