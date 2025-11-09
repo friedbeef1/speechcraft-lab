@@ -178,7 +178,27 @@ const PracticeSession = () => {
         body: { audio: base64Audio }
       });
 
-      if (error) throw error;
+      // Check for rate limit error specifically
+      if (error) {
+        const errorMessage = error.message || JSON.stringify(error);
+        if (errorMessage.includes('Rate limit exceeded')) {
+          console.error("Rate limit hit:", error);
+          
+          // Update recording with error status
+          setRecordings(prev => prev.map(r => 
+            r.cardIndex === cardIndex
+              ? { ...r, status: 'error' as const }
+              : r
+          ));
+          
+          toast.error(
+            "Rate limit reached! Please sign in for unlimited recordings.",
+            { duration: 6000 }
+          );
+          return;
+        }
+        throw error;
+      }
 
       // Update recording with completed status
       setRecordings(prev => prev.map(r => 
@@ -239,10 +259,25 @@ const PracticeSession = () => {
 
     // Save session recordings to localStorage
     const completedRecordings = recordings.filter(r => r.status === 'completed');
+    const errorRecordings = recordings.filter(r => r.status === 'error');
     
     if (completedRecordings.length === 0) {
-      toast.error("No completed recordings. Please wait for processing to finish.");
+      if (errorRecordings.length > 0) {
+        toast.error(
+          "All recordings failed. Please sign in to continue or try again later.",
+          { duration: 6000 }
+        );
+      } else {
+        toast.error("No completed recordings. Please wait for processing to finish.");
+      }
       return;
+    }
+    
+    if (errorRecordings.length > 0) {
+      toast.info(
+        `Showing results for ${completedRecordings.length} completed recording(s). ${errorRecordings.length} failed due to rate limits.`,
+        { duration: 5000 }
+      );
     }
 
     localStorage.setItem('sessionRecordings', JSON.stringify({
