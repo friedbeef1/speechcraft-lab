@@ -183,19 +183,19 @@ const PreparePractice = () => {
 
   const fillWithInspiration = (type: "world" | "local") => {
     const worldNewsPrompts = [
-      "Discuss the impact of artificial intelligence on global job markets",
-      "Explain your perspective on climate change policies",
-      "Share your thoughts on the future of space exploration",
-      "Discuss the role of social media in modern democracy",
-      "Talk about international trade and economic cooperation",
+      "Discuss the impact of rising global temperatures on coastal communities and ecosystems",
+      "Explain your perspective on international climate agreements and their effectiveness",
+      "Share your thoughts on renewable energy transition and its economic implications",
+      "Discuss the role of deforestation in biodiversity loss and climate change",
+      "Talk about ocean acidification and its effects on marine life",
     ];
 
     const localNewsPrompts = [
-      "Describe the most important issues facing your local community",
-      "Discuss upcoming local events or initiatives you're excited about",
-      "Share your opinion on local transportation and infrastructure",
-      "Talk about local businesses and economic development",
-      "Discuss community safety and neighborhood improvement",
+      "Describe environmental challenges facing your local community",
+      "Discuss local sustainability initiatives or green projects you support",
+      "Share your opinion on improving public transportation to reduce emissions",
+      "Talk about local renewable energy adoption and community solar programs",
+      "Discuss waste reduction, recycling efforts, and circular economy in your area",
     ];
 
     const selectedPrompts = type === "world" ? worldNewsPrompts : localNewsPrompts;
