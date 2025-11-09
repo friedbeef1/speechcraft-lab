@@ -39,14 +39,14 @@ export function TipCard({ tips }: TipCardProps) {
             isFlipped ? "visible" : "invisible"
           }`}
         >
-          <CardContent className="py-4 sm:py-6 px-3 sm:px-6">
-            <div className="flex items-start gap-2 sm:gap-3">
-              <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
-              <div className="text-xs sm:text-sm space-y-1">
+          <CardContent className="py-6 sm:py-8 px-4 sm:px-8">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
+              <div className="text-xs sm:text-sm space-y-2 sm:space-y-3">
                 {tips.map((tip, index) => (
                   <div key={index} className="flex items-start gap-2">
                     <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-                    <span className="break-words flex-1">{tip}</span>
+                    <span className="break-words flex-1 leading-relaxed">{tip}</span>
                   </div>
                 ))}
               </div>
