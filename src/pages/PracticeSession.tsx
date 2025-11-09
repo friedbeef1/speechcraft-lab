@@ -263,25 +263,35 @@ const PracticeSession = () => {
     setFillerWordCount((prev) => prev + 1);
   };
 
-  const nextCard = () => {
+  const nextCard = async () => {
     if (currentCardIndex < totalCards - 1) {
       if (isRecording) {
-        stopRecording();
+        await stopRecording();
       }
       setCurrentCardIndex((prev) => prev + 1);
       setRecordingTime(0);
       setFillerWordCount(0);
+      
+      // Auto-start recording on new card
+      setTimeout(() => {
+        startRecording();
+      }, 300);
     }
   };
 
-  const previousCard = () => {
+  const previousCard = async () => {
     if (currentCardIndex > 0) {
       if (isRecording) {
-        stopRecording();
+        await stopRecording();
       }
       setCurrentCardIndex((prev) => prev - 1);
       setRecordingTime(0);
       setFillerWordCount(0);
+      
+      // Auto-start recording on new card
+      setTimeout(() => {
+        startRecording();
+      }, 300);
     }
   };
 
