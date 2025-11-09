@@ -34,11 +34,13 @@ const validateAnalysisInput = (data: any): { valid: boolean; error?: string } =>
   return { valid: true };
 };
 
-// User-based rate limiting check
+// Rate limiting check for both authenticated users and guests
 const checkRateLimit = async (
   supabase: any,
-  userId: string,
-  endpoint: string
+  identifier: string,
+  identifierType: 'user' | 'ip',
+  endpoint: string,
+  limit: number
 ): Promise<{ allowed: boolean; error?: string }> => {
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   
@@ -46,8 +48,8 @@ const checkRateLimit = async (
   const { data, error } = await supabase
     .from('rate_limits')
     .select('id', { count: 'exact' })
-    .eq('identifier', userId)
-    .eq('identifier_type', 'user')
+    .eq('identifier', identifier)
+    .eq('identifier_type', identifierType)
     .eq('endpoint', endpoint)
     .gte('requested_at', hourAgo);
   
@@ -57,10 +59,9 @@ const checkRateLimit = async (
   }
   
   const requestCount = data?.length || 0;
-  const limit = 20; // 20 requests per hour for authenticated users
   
   if (requestCount >= limit) {
-    console.warn('Rate limit exceeded', { userId, endpoint, requestCount });
+    console.warn('Rate limit exceeded', { identifier, identifierType, endpoint, requestCount });
     return {
       allowed: false,
       error: `Rate limit exceeded. You can make ${limit} requests per hour.`
@@ -69,8 +70,8 @@ const checkRateLimit = async (
   
   // Log this request
   const { error: insertError } = await supabase.from('rate_limits').insert({
-    identifier: userId,
-    identifier_type: 'user',
+    identifier,
+    identifier_type: identifierType,
     endpoint,
   });
 
@@ -101,33 +102,39 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    // Require authentication
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authentication required' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    const jwt = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    // Support both authenticated and guest access
+    let identifier: string;
+    let identifierType: 'user' | 'ip';
+    let limit: number;
     
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication token' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    const authHeader = req.headers.get('authorization');
+    if (authHeader) {
+      const jwt = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+      
+      if (user) {
+        // Authenticated user
+        identifier = user.id;
+        identifierType = 'user';
+        limit = 20; // 20 requests per hour for authenticated users
+        console.log('Authenticated user:', user.id);
+      } else {
+        // Guest access via IP
+        identifier = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+        identifierType = 'ip';
+        limit = 9; // 9 requests per hour for guests
+        console.log('Guest access via IP:', identifier);
+      }
+    } else {
+      // Guest access via IP
+      identifier = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+      identifierType = 'ip';
+      limit = 9; // 9 requests per hour for guests
+      console.log('Guest access via IP:', identifier);
     }
 
-    // Check user-based rate limit
-    const rateLimitResult = await checkRateLimit(supabase, user.id, 'analyze-speech');
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(supabase, identifier, identifierType, 'analyze-speech', limit);
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify({ error: rateLimitResult.error }),
@@ -148,7 +155,8 @@ serve(async (req) => {
     const { transcript, duration, fillerWordCount } = body;
 
     console.log('Analyzing speech:', { 
-      userId: user.id,
+      identifier,
+      identifierType,
       transcriptLength: transcript.length, 
       duration, 
       fillerWordCount 
