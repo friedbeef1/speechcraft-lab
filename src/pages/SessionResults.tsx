@@ -14,8 +14,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Area,
-  AreaChart,
 } from "recharts";
 import {
   Accordion,
@@ -32,6 +30,7 @@ import {
   BarChart3,
   CheckCircle2,
   UserCircle,
+  Mic,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,16 +70,6 @@ const SessionResults = () => {
   const [selectedTab, setSelectedTab] = useState("0");
 
   const fillerWords = ["um", "uh", "like", "you know", "so", "actually", "basically"];
-
-  // Generate vocal variation data based on duration
-  const getVocalData = (duration: number) => {
-    const points = Math.max(10, Math.floor(duration / 2));
-    return Array.from({ length: points }, (_, i) => ({
-      time: (duration / points) * i,
-      pitch: 100 + Math.random() * 50 + Math.sin(i * 0.5) * 20,
-      volume: 60 + Math.random() * 30 + Math.cos(i * 0.3) * 15,
-    }));
-  };
 
   const renderTranscript = (text: string) => {
     if (!text) return null;
@@ -470,80 +459,53 @@ const SessionResults = () => {
                   </Card>
                 </div>
 
-                {/* AI Feedback for this card */}
-                <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-4 sm:p-6">
-                      <CardTitle className="text-base sm:text-lg">Delivery Feedback</CardTitle>
-                      <CardDescription className="text-xs sm:text-sm">Pace, tone, and speaking style</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 sm:p-6 pt-0">
-                      <ul className="space-y-2 sm:space-y-3">
-                        {recording.analysis.feedback.delivery.map((point, i) => (
-                          <li key={i} className="flex gap-2 text-xs sm:text-sm">
-                            <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                            <span className="break-words">{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-4 sm:p-6">
-                      <CardTitle className="text-base sm:text-lg">Content Feedback</CardTitle>
-                      <CardDescription className="text-xs sm:text-sm">Clarity, structure, and engagement</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 sm:p-6 pt-0">
-                      <ul className="space-y-2 sm:space-y-3">
-                        {recording.analysis.feedback.content.map((point, i) => (
-                          <li key={i} className="flex gap-2 text-xs sm:text-sm">
-                            <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                            <span className="break-words">{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Vocal Variation Chart for this card */}
-                <Card className="hover:shadow-glass-lg transition-smooth">
+                {/* Speech Technique Review Card */}
+                <Card className="hover:shadow-glass-lg transition-smooth border-primary/20">
                   <CardHeader className="p-4 sm:p-6">
-                    <CardTitle className="text-base sm:text-lg">Vocal Variation</CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Pitch and volume throughout your speech</CardDescription>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 sm:p-3 rounded-lg glass-medium">
+                        <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg sm:text-xl">Speech Technique</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">Delivery, pace, tone, and vocal presence</CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
-                    <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px]">
-                      <AreaChart data={getVocalData(recording.duration)}>
-                        <defs>
-                          <linearGradient id={`colorPitch${idx}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id={`colorVolume${idx}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                        <XAxis dataKey="time" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                        <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                        <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
-                        <Area type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" fillOpacity={1} fill={`url(#colorPitch${idx})`} name="Pitch" />
-                        <Area type="monotone" dataKey="volume" stroke="hsl(var(--accent))" fillOpacity={1} fill={`url(#colorVolume${idx})`} name="Volume" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                    <ul className="space-y-3 sm:space-y-4">
+                      {recording.analysis.feedback.delivery.map((point, i) => (
+                        <li key={i} className="flex gap-3 text-sm sm:text-base">
+                          <span className="text-primary mt-1 flex-shrink-0">•</span>
+                          <span className="break-words leading-relaxed">{point}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
 
-                {/* Prompt Display */}
-                <Card className="hover:shadow-glass-lg transition-smooth">
+                {/* Content Review Card */}
+                <Card className="hover:shadow-glass-lg transition-smooth border-accent/20">
                   <CardHeader className="p-4 sm:p-6">
-                    <CardTitle className="text-base sm:text-lg">Practice Prompt</CardTitle>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 sm:p-3 rounded-lg glass-medium">
+                        <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg sm:text-xl">Content Quality</CardTitle>
+                        <CardDescription className="text-xs sm:text-sm">Message clarity, structure, and engagement</CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
-                    <p className="text-sm sm:text-base leading-relaxed break-words">{recording.prompt}</p>
+                    <ul className="space-y-3 sm:space-y-4">
+                      {recording.analysis.feedback.content.map((point, i) => (
+                        <li key={i} className="flex gap-3 text-sm sm:text-base">
+                          <span className="text-accent mt-1 flex-shrink-0">•</span>
+                          <span className="break-words leading-relaxed">{point}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
 
