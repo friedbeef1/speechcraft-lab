@@ -106,36 +106,33 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    // Support both authenticated and guest access
-    let identifier: string;
-    let identifierType: 'user' | 'ip';
-    let limit: number;
-    
+    // Extract user from JWT (verify_jwt = true ensures this exists)
     const authHeader = req.headers.get('authorization');
-    if (authHeader) {
-      const jwt = authHeader.replace('Bearer ', '');
-      const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
-      
-      if (user) {
-        // Authenticated user
-        identifier = user.id;
-        identifierType = 'user';
-        limit = 20; // 20 requests per hour for authenticated users
-        console.log('Authenticated user:', user.id);
-      } else {
-        // Guest access via IP
-        identifier = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-        identifierType = 'ip';
-        limit = 9; // 9 requests per hour for guests
-        console.log('Guest access via IP:', identifier);
-      }
-    } else {
-      // Guest access via IP
-      identifier = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-      identifierType = 'ip';
-      limit = 9; // 9 requests per hour for guests
-      console.log('Guest access via IP:', identifier);
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    
+    if (!user || authError) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Set rate limit based on whether user is anonymous
+    const identifier = user.id;
+    const identifierType = 'user';
+    const isAnonymous = user.is_anonymous ?? false;
+    const limit = isAnonymous ? 9 : 20; // 9 for guests, 20 for authenticated users
+    
+    console.log(`${isAnonymous ? 'Anonymous' : 'Authenticated'} user:`, user.id);
 
     // Check rate limit
     const rateLimitResult = await checkRateLimit(supabase, identifier, identifierType, 'analyze-speech', limit);

@@ -20,20 +20,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    // Check for guest mode in localStorage
-    const guestMode = localStorage.getItem('guestMode') === 'true';
-    setIsGuest(guestMode);
-
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        // Clear guest mode when user signs in
-        if (session?.user) {
-          localStorage.removeItem('guestMode');
-          setIsGuest(false);
-        }
+        // Check if user is anonymous
+        setIsGuest(session?.user?.is_anonymous ?? false);
       }
     );
 
@@ -41,6 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setIsGuest(session?.user?.is_anonymous ?? false);
     });
 
     return () => subscription.unsubscribe();
@@ -69,13 +63,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    localStorage.removeItem('guestMode');
     setIsGuest(false);
   };
 
-  const continueAsGuest = () => {
-    localStorage.setItem('guestMode', 'true');
-    setIsGuest(true);
+  const continueAsGuest = async () => {
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error('Failed to sign in anonymously:', error);
+    }
   };
 
   return (
