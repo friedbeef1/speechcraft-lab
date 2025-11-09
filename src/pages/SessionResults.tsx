@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LineChart,
   Line,
@@ -49,20 +50,25 @@ interface AnalysisData {
   };
 }
 
+interface RecordingWithAnalysis {
+  cardIndex: number;
+  prompt: string;
+  transcript: string;
+  duration: number;
+  audioBlob: string;
+  fillerWordCount: number;
+  audioUrl?: string;
+  analysis?: AnalysisData;
+}
+
 const SessionResults = () => {
   const navigate = useNavigate();
   const { user, isGuest } = useAuth();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [recordingData, setRecordingData] = useState<{
-    transcript: string;
-    duration: number;
-    audioBlob: string;
-    fillerWordCount: number;
-    prompt: string;
-  } | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [recordings, setRecordings] = useState<RecordingWithAnalysis[]>([]);
+  const [scenarioTitle, setScenarioTitle] = useState<string>('Practice Session');
+  const [selectedTab, setSelectedTab] = useState("0");
 
   const fillerWords = ["um", "uh", "like", "you know", "so", "actually", "basically"];
 
@@ -100,195 +106,197 @@ const SessionResults = () => {
   };
 
   useEffect(() => {
-    const loadRecordingData = () => {
-      const stored = localStorage.getItem('lastRecording');
-      if (!stored) {
-        toast.error("No recording data found");
-        navigate("/");
-        return null;
-      }
-      return JSON.parse(stored);
-    };
-
-    const analyzeRecording = async () => {
+    const loadAndAnalyzeRecordings = async () => {
       try {
         setIsLoading(true);
         
-        // Load recording data from localStorage
-        const data = loadRecordingData();
-        if (!data) return;
-        
-        setRecordingData(data);
-
-        // Convert base64 back to blob for audio playback
-        const binaryString = atob(data.audioBlob);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
+        // Load session recordings from localStorage
+        const stored = localStorage.getItem('sessionRecordings');
+        if (!stored) {
+          toast.error("No recording data found");
+          navigate("/");
+          return;
         }
-        const blob = new Blob([bytes], { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
-
-        // Call AI analysis with real transcript
-        const { data: analysisResult, error } = await supabase.functions.invoke('analyze-speech', {
-          body: {
-            transcript: data.transcript,
-            duration: data.duration,
-            fillerWordCount: data.fillerWordCount
-          }
-        });
-
-        if (error) throw error;
-
-        setAnalysisData(analysisResult);
         
-        // Save session to database if user is authenticated (not guest)
-        if (user && !isGuest && analysisResult) {
-          try {
-            const { error: insertError } = await supabase
-              .from('practice_sessions')
-              .insert({
-                user_id: user.id,
-                transcript: data.transcript,
-                duration: data.duration,
-                fluency_score: analysisResult.metrics.fluencyScore,
-                word_count: analysisResult.metrics.wordCount,
-                speech_rate: analysisResult.metrics.speechRate,
-                filler_word_count: analysisResult.metrics.fillerWordCount,
-                delivery_feedback: analysisResult.feedback.delivery,
-                content_feedback: analysisResult.feedback.content,
-                prompts: [{ text: data.prompt }],
-                audio_url: null, // No recording stored per requirement
-                category: null // Can be derived from scenario later
+        const sessionData = JSON.parse(stored);
+        const recordingsData: RecordingWithAnalysis[] = sessionData.recordings;
+        setScenarioTitle(sessionData.scenarioTitle || 'Practice Session');
+        
+        if (!recordingsData || recordingsData.length === 0) {
+          toast.error("No recordings found");
+          navigate("/");
+          return;
+        }
+
+        // Process each recording: convert audio and analyze
+        const processedRecordings = await Promise.all(
+          recordingsData.map(async (recording) => {
+            try {
+              // Convert base64 back to blob for audio playback
+              const binaryString = atob(recording.audioBlob);
+              const bytes = new Uint8Array(binaryString.length);
+              for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+              }
+              const blob = new Blob([bytes], { type: 'audio/webm' });
+              const audioUrl = URL.createObjectURL(blob);
+
+              // Call AI analysis
+              const { data: analysisResult, error } = await supabase.functions.invoke('analyze-speech', {
+                body: {
+                  transcript: recording.transcript,
+                  duration: recording.duration,
+                  fillerWordCount: recording.fillerWordCount
+                }
               });
 
+              if (error) throw error;
+
+              return {
+                ...recording,
+                audioUrl,
+                analysis: analysisResult
+              };
+            } catch (error) {
+              console.error(`Error analyzing recording ${recording.cardIndex}:`, error);
+              
+              // Fallback analysis
+              return {
+                ...recording,
+                audioUrl: '',
+                analysis: {
+                  metrics: {
+                    fluencyScore: 75,
+                    wordCount: recording.transcript?.split(/\s+/).length || 0,
+                    speechRate: Math.round(((recording.transcript?.split(/\s+/).length || 0) / recording.duration) * 60),
+                    fillerWordCount: recording.fillerWordCount
+                  },
+                  feedback: {
+                    delivery: ["Your speaking pace could be improved", "Work on reducing filler words"],
+                    content: ["Consider adding more structure", "Use specific examples"]
+                  }
+                }
+              };
+            }
+          })
+        );
+
+        setRecordings(processedRecordings);
+        
+        // Save all sessions to database if user is authenticated
+        if (user && !isGuest) {
+          try {
+            const sessionsToInsert = processedRecordings.map(rec => ({
+              user_id: user.id,
+              transcript: rec.transcript,
+              duration: rec.duration,
+              fluency_score: rec.analysis?.metrics.fluencyScore || 0,
+              word_count: rec.analysis?.metrics.wordCount || 0,
+              speech_rate: rec.analysis?.metrics.speechRate || 0,
+              filler_word_count: rec.analysis?.metrics.fillerWordCount || 0,
+              delivery_feedback: rec.analysis?.feedback.delivery || [],
+              content_feedback: rec.analysis?.feedback.content || [],
+              prompts: [{ text: rec.prompt }],
+              audio_url: null,
+              category: null
+            }));
+
+            const { error: insertError } = await supabase
+              .from('practice_sessions')
+              .insert(sessionsToInsert);
+
             if (insertError) {
-              console.error('Error saving session:', insertError);
+              console.error('Error saving sessions:', insertError);
             }
           } catch (saveError) {
             console.error('Error saving to database:', saveError);
           }
         }
         
-        toast.success("Analysis complete!");
+        toast.success("All recordings analyzed!");
       } catch (error) {
-        console.error('Error analyzing speech:', error);
-        toast.error("Failed to analyze speech");
-        
-        // Fallback data if analysis fails
-        if (recordingData) {
-          setAnalysisData({
-            metrics: {
-              fluencyScore: 75,
-              wordCount: recordingData.transcript.split(/\s+/).length,
-              speechRate: Math.round((recordingData.transcript.split(/\s+/).length / recordingData.duration) * 60),
-              fillerWordCount: recordingData.fillerWordCount
-            },
-            feedback: {
-              delivery: [
-                "Your speaking pace could be improved for better engagement",
-                "Work on reducing filler words to sound more confident",
-                "Consider varying your tone for emphasis"
-              ],
-              content: [
-                "Your message is clear but could be more structured",
-                "Consider adding specific examples to support your points",
-                "Work on stronger opening and closing statements"
-              ]
-            }
-          });
-        }
+        console.error('Error loading recordings:', error);
+        toast.error("Failed to load recordings");
       } finally {
         setIsLoading(false);
       }
     };
 
-    analyzeRecording();
+    loadAndAnalyzeRecordings();
 
-    // Cleanup audio URL on unmount
+    // Cleanup audio URLs on unmount
     return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
+      recordings.forEach(rec => {
+        if (rec.audioUrl) {
+          URL.revokeObjectURL(rec.audioUrl);
+        }
+      });
     };
   }, []);
 
+  // Calculate aggregate metrics
+  const aggregateMetrics = recordings.length > 0 ? {
+    avgFluencyScore: Math.round(recordings.reduce((sum, r) => sum + (r.analysis?.metrics.fluencyScore || 0), 0) / recordings.length),
+    totalWordCount: recordings.reduce((sum, r) => sum + (r.analysis?.metrics.wordCount || 0), 0),
+    avgSpeechRate: Math.round(recordings.reduce((sum, r) => sum + (r.analysis?.metrics.speechRate || 0), 0) / recordings.length),
+    totalFillerWords: recordings.reduce((sum, r) => sum + (r.analysis?.metrics.fillerWordCount || 0), 0),
+  } : null;
+
   const exportToPDF = () => {
-    if (!analysisData || !recordingData) return;
+    if (recordings.length === 0) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     
     // Title
     doc.setFontSize(20);
-    doc.text("Speech Analysis Report", pageWidth / 2, 20, { align: "center" });
-    
-    // Prompt
+    doc.text("Multi-Card Session Report", pageWidth / 2, 20, { align: "center" });
     doc.setFontSize(12);
-    doc.text("Prompt:", 20, 35);
-    doc.setFontSize(10);
-    const promptLines = doc.splitTextToSize(recordingData.prompt, pageWidth - 40);
-    doc.text(promptLines, 20, 42);
+    doc.text(scenarioTitle, pageWidth / 2, 28, { align: "center" });
     
-    let y = 42 + promptLines.length * 5 + 10;
+    let y = 40;
     
-    // Key Metrics
-    doc.setFontSize(16);
-    doc.text("Key Metrics", 20, y);
-    y += 8;
-    doc.setFontSize(12);
-    doc.text(`Fluency Score: ${analysisData.metrics.fluencyScore}/100`, 20, y);
-    y += 8;
-    doc.text(`Word Count: ${analysisData.metrics.wordCount}`, 20, y);
-    y += 8;
-    doc.text(`Speech Rate: ${analysisData.metrics.speechRate} wpm`, 20, y);
-    y += 8;
-    doc.text(`Filler Words: ${analysisData.metrics.fillerWordCount}`, 20, y);
-    y += 16;
-    
-    // Delivery Feedback
-    doc.setFontSize(16);
-    doc.text("Delivery Feedback", 20, y);
-    y += 8;
-    doc.setFontSize(10);
-    analysisData.feedback.delivery.forEach((point, i) => {
-      const lines = doc.splitTextToSize(`• ${point}`, pageWidth - 40);
-      doc.text(lines, 20, y);
-      y += lines.length * 6;
-    });
-    
-    // Content Feedback
-    y += 10;
-    doc.setFontSize(16);
-    doc.text("Content Feedback", 20, y);
-    y += 8;
-    doc.setFontSize(10);
-    analysisData.feedback.content.forEach((point, i) => {
-      const lines = doc.splitTextToSize(`• ${point}`, pageWidth - 40);
-      doc.text(lines, 20, y);
-      y += lines.length * 6;
-    });
-    
-    // Transcript
-    if (y < 220) {
-      y += 10;
+    // Aggregate Metrics
+    if (aggregateMetrics) {
       doc.setFontSize(16);
-      doc.text("Transcript", 20, y);
+      doc.text("Overall Performance", 20, y);
       y += 8;
-      doc.setFontSize(9);
-      const transcriptLines = doc.splitTextToSize(recordingData.transcript, pageWidth - 40);
-      transcriptLines.forEach((line: string) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(line, 20, y);
-        y += 5;
-      });
+      doc.setFontSize(12);
+      doc.text(`Average Fluency: ${aggregateMetrics.avgFluencyScore}/100`, 20, y);
+      y += 6;
+      doc.text(`Total Words: ${aggregateMetrics.totalWordCount}`, 20, y);
+      y += 6;
+      doc.text(`Average Rate: ${aggregateMetrics.avgSpeechRate} wpm`, 20, y);
+      y += 6;
+      doc.text(`Total Fillers: ${aggregateMetrics.totalFillerWords}`, 20, y);
+      y += 12;
     }
     
-    doc.save("speech-analysis-report.pdf");
+    // Individual recordings
+    recordings.forEach((recording, idx) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.text(`Card ${recording.cardIndex + 1}`, 20, y);
+      y += 6;
+      
+      doc.setFontSize(10);
+      const promptLines = doc.splitTextToSize(recording.prompt, pageWidth - 40);
+      doc.text(promptLines, 20, y);
+      y += promptLines.length * 5 + 8;
+      
+      if (recording.analysis) {
+        doc.text(`Fluency: ${recording.analysis.metrics.fluencyScore}/100 | Words: ${recording.analysis.metrics.wordCount} | Rate: ${recording.analysis.metrics.speechRate} wpm`, 20, y);
+        y += 8;
+      }
+      
+      y += 6;
+    });
+    
+    doc.save(`${scenarioTitle}-session-report.pdf`);
     toast.success("Report exported successfully!");
   };
 
@@ -297,22 +305,24 @@ const SessionResults = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-lg text-muted-foreground">Analyzing your speech...</p>
+          <p className="text-lg text-muted-foreground">Analyzing your recordings...</p>
         </div>
       </div>
     );
   }
 
-  if (!analysisData) {
+  if (recordings.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-lg text-muted-foreground">Failed to load analysis data</p>
+        <p className="text-lg text-muted-foreground">No recordings found</p>
         <Button onClick={() => navigate("/")} className="mt-4">
           Return Home
         </Button>
       </div>
     );
   }
+
+  const currentRecording = recordings[parseInt(selectedTab)];
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 pb-6 sm:pb-8 animate-fade-in">
@@ -324,11 +334,14 @@ const SessionResults = () => {
         </Button>
         <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 py-1.5 sm:py-2 glass-medium backdrop-blur-md shadow-glass">
           <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-          Analysis Complete
+          {recordings.length} Card{recordings.length > 1 ? 's' : ''} Analyzed
         </Badge>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Session Results</h1>
+      <div>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{scenarioTitle}</h1>
+        <p className="text-muted-foreground mt-1">Multi-card practice session results</p>
+      </div>
 
       {/* Guest Mode Banner */}
       {isGuest && (
@@ -352,159 +365,215 @@ const SessionResults = () => {
         </Card>
       )}
 
-      {/* Key Metrics */}
-      <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium">Fluency</CardTitle>
-            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.fluencyScore}/100</div>
-            <Progress value={analysisData.metrics.fluencyScore} className="mt-2" />
-          </CardContent>
-        </Card>
+      {/* Aggregate Metrics */}
+      {aggregateMetrics && (
+        <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
+          <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Avg Fluency</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{aggregateMetrics.avgFluencyScore}/100</div>
+              <Progress value={aggregateMetrics.avgFluencyScore} className="mt-2" />
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium">Words</CardTitle>
-            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.wordCount}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Total spoken</p>
-          </CardContent>
-        </Card>
+          <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Words</CardTitle>
+              <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{aggregateMetrics.totalWordCount}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">All cards combined</p>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium">Rate</CardTitle>
-            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.speechRate}</div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">WPM</p>
-          </CardContent>
-        </Card>
+          <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Avg Rate</CardTitle>
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{aggregateMetrics.avgSpeechRate}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">WPM average</p>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium">Fillers</CardTitle>
-            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
-            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-500">
-              {analysisData.metrics.fillerWordCount}
-            </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Um, uh, like</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Feedback */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
-        <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-base sm:text-lg lg:text-xl">Delivery Feedback</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Pace, tone, and speaking style</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <ul className="space-y-2 sm:space-y-3">
-              {analysisData.feedback.delivery.map((point, i) => (
-                <li key={i} className="flex gap-2 text-xs sm:text-sm">
-                  <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                  <span className="break-words">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-base sm:text-lg lg:text-xl">Content Feedback</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Clarity, structure, and engagement</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <ul className="space-y-2 sm:space-y-3">
-              {analysisData.feedback.content.map((point, i) => (
-                <li key={i} className="flex gap-2 text-xs sm:text-sm">
-                  <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                  <span className="break-words">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Vocal Variation Chart */}
-      <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg lg:text-xl">Vocal Variation</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">Pitch and volume throughout your speech</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0">
-          <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] lg:!h-[300px]">
-            <AreaChart data={recordingData ? getVocalData(recordingData.duration) : []}>
-              <defs>
-                <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="time" label={{ value: 'Time (seconds)', position: 'insideBottom', offset: -5 }} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-              <YAxis label={{ value: 'Level', angle: -90, position: 'insideLeft' }} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--card-foreground))' }} />
-              <Area type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorPitch)" name="Pitch" />
-              <Area type="monotone" dataKey="volume" stroke="hsl(var(--accent))" fillOpacity={1} fill="url(#colorVolume)" name="Volume" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Prompt Display */}
-      {recordingData && (
-        <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-base sm:text-lg lg:text-xl">Practice Prompt</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">The prompt you responded to</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <p className="text-sm sm:text-base lg:text-lg leading-relaxed break-words">{recordingData.prompt}</p>
-          </CardContent>
-        </Card>
+          <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Fillers</CardTitle>
+              <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-500">
+                {aggregateMetrics.totalFillerWords}
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Um, uh, like</p>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-      {/* Full Transcript and Recording */}
-      <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg lg:text-xl">Full Recording & Transcript</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">Complete audio and text from your session</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
-          {audioUrl && (
-            <div className="p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
-              <audio controls className="w-full">
-                <source src={audioUrl} type="audio/webm" />
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-          )}
-          
-          <div className="space-y-2">
-            <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
-            <div className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-              {renderTranscript(recordingData?.transcript || '')}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Individual Recording Tabs */}
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <TabsList className="w-full grid" style={{ gridTemplateColumns: `repeat(${recordings.length}, 1fr)` }}>
+          {recordings.map((recording, idx) => (
+            <TabsTrigger key={idx} value={idx.toString()} className="text-xs sm:text-sm">
+              Card {recording.cardIndex + 1}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {recordings.map((recording, idx) => (
+          <TabsContent key={idx} value={idx.toString()} className="space-y-4 sm:space-y-6 mt-4">
+            {recording.analysis && (
+              <>
+                {/* Individual Card Metrics */}
+                <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-3 sm:p-4">
+                      <CardTitle className="text-xs sm:text-sm font-medium">Fluency</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-4 pt-0">
+                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.fluencyScore}/100</div>
+                      <Progress value={recording.analysis.metrics.fluencyScore} className="mt-2" />
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-3 sm:p-4">
+                      <CardTitle className="text-xs sm:text-sm font-medium">Words</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-4 pt-0">
+                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.wordCount}</div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-3 sm:p-4">
+                      <CardTitle className="text-xs sm:text-sm font-medium">Rate</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-4 pt-0">
+                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.speechRate} WPM</div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-3 sm:p-4">
+                      <CardTitle className="text-xs sm:text-sm font-medium">Fillers</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 sm:p-4 pt-0">
+                      <div className="text-xl sm:text-2xl font-bold text-amber-500">{recording.analysis.metrics.fillerWordCount}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* AI Feedback for this card */}
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-4 sm:p-6">
+                      <CardTitle className="text-base sm:text-lg">Delivery Feedback</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Pace, tone, and speaking style</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                      <ul className="space-y-2 sm:space-y-3">
+                        {recording.analysis.feedback.delivery.map((point, i) => (
+                          <li key={i} className="flex gap-2 text-xs sm:text-sm">
+                            <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
+                            <span className="break-words">{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-glass-lg transition-smooth">
+                    <CardHeader className="p-4 sm:p-6">
+                      <CardTitle className="text-base sm:text-lg">Content Feedback</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Clarity, structure, and engagement</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                      <ul className="space-y-2 sm:space-y-3">
+                        {recording.analysis.feedback.content.map((point, i) => (
+                          <li key={i} className="flex gap-2 text-xs sm:text-sm">
+                            <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
+                            <span className="break-words">{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Vocal Variation Chart for this card */}
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Vocal Variation</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">Pitch and volume throughout your speech</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px]">
+                      <AreaChart data={getVocalData(recording.duration)}>
+                        <defs>
+                          <linearGradient id={`colorPitch${idx}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id={`colorVolume${idx}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                        <XAxis dataKey="time" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                        <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                        <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
+                        <Area type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" fillOpacity={1} fill={`url(#colorPitch${idx})`} name="Pitch" />
+                        <Area type="monotone" dataKey="volume" stroke="hsl(var(--accent))" fillOpacity={1} fill={`url(#colorVolume${idx})`} name="Volume" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Prompt Display */}
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Practice Prompt</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <p className="text-sm sm:text-base leading-relaxed break-words">{recording.prompt}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Recording and Transcript */}
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">Recording & Transcript</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+                    {recording.audioUrl && (
+                      <div className="p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
+                        <audio controls className="w-full">
+                          <source src={recording.audioUrl} type="audio/webm" />
+                        </audio>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2">
+                      <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
+                      <div className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] overflow-y-auto">
+                        {renderTranscript(recording.transcript || '')}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">

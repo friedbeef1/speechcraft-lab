@@ -9,6 +9,9 @@ import {
   Mic,
   Square,
   X,
+  Check,
+  Loader2,
+  Flag,
 } from "lucide-react";
 import { AudioRecorder } from "@/utils/AudioRecorder";
 import { Waveform } from "@/components/Waveform";
@@ -16,6 +19,16 @@ import { CircularTimer } from "@/components/CircularTimer";
 import { TipCard } from "@/components/TipCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+interface RecordingData {
+  cardIndex: number;
+  prompt: string;
+  audioBlob: string;
+  status: 'idle' | 'recording' | 'processing' | 'completed' | 'error';
+  transcript?: string;
+  duration?: number;
+  fillerWordCount?: number;
+}
 
 // Fallback data if no scenario is loaded
 const fallbackPrompts = [
@@ -34,6 +47,7 @@ const PracticeSession = () => {
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [prompts, setPrompts] = useState<Array<{ text: string; tips: string[] }>>([]);
   const [scenarioTitle, setScenarioTitle] = useState<string>('Practice Session');
+  const [recordings, setRecordings] = useState<RecordingData[]>([]);
 
   const recorderRef = useRef<AudioRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,6 +108,9 @@ const PracticeSession = () => {
 
     try {
       const audioBlob = await recorderRef.current.stop();
+      const duration = recordingTime;
+      const currentFillerCount = fillerWordCount;
+      
       setIsRecording(false);
       setAnalyser(null);
 
@@ -103,39 +120,39 @@ const PracticeSession = () => {
       }
 
       console.log("Recording stopped, audio blob size:", audioBlob.size);
-      toast.info("Transcribing your speech...");
-
+      
       // Convert blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       
       reader.onloadend = async () => {
-        try {
-          const base64Audio = (reader.result as string).split(',')[1];
-          
-          // Call transcription service
-          const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-            body: { audio: base64Audio }
-          });
-
-          if (error) throw error;
-
-          // Store real data in localStorage
-          localStorage.setItem('lastRecording', JSON.stringify({
-            transcript: data.transcript,
-            duration: recordingTime,
-            audioBlob: base64Audio,
-            fillerWordCount: data.fillerWordCount,
-            prompt: currentPrompt,
-            scenarioTitle: scenarioTitle
-          }));
-
-          toast.success("Transcription complete!");
-          navigate("/results");
-        } catch (error) {
-          console.error("Transcription error:", error);
-          toast.error("Failed to transcribe audio");
-        }
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        // Add to recordings array with processing status
+        const newRecording: RecordingData = {
+          cardIndex: currentCardIndex,
+          prompt: currentPrompt,
+          audioBlob: base64Audio,
+          status: 'processing',
+          duration: duration,
+          fillerWordCount: currentFillerCount
+        };
+        
+        setRecordings(prev => {
+          const updated = [...prev];
+          const existingIndex = updated.findIndex(r => r.cardIndex === currentCardIndex);
+          if (existingIndex >= 0) {
+            updated[existingIndex] = newRecording;
+          } else {
+            updated.push(newRecording);
+          }
+          return updated;
+        });
+        
+        toast.success("Recording saved! Processing in background...");
+        
+        // Start background processing (don't await)
+        processRecordingInBackground(base64Audio, currentCardIndex, currentPrompt, duration, currentFillerCount);
       };
 
       reader.onerror = () => {
@@ -148,25 +165,123 @@ const PracticeSession = () => {
     }
   };
 
+  const processRecordingInBackground = async (
+    base64Audio: string,
+    cardIndex: number,
+    prompt: string,
+    duration: number,
+    fillerCount: number
+  ) => {
+    try {
+      // Call transcription service
+      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+        body: { audio: base64Audio }
+      });
+
+      if (error) throw error;
+
+      // Update recording with completed status
+      setRecordings(prev => prev.map(r => 
+        r.cardIndex === cardIndex
+          ? {
+              ...r,
+              status: 'completed' as const,
+              transcript: data.transcript,
+              fillerWordCount: data.fillerWordCount
+            }
+          : r
+      ));
+
+      toast.success(`Card ${cardIndex + 1} transcription complete!`);
+    } catch (error) {
+      console.error("Transcription error:", error);
+      
+      // Update recording with error status
+      setRecordings(prev => prev.map(r => 
+        r.cardIndex === cardIndex
+          ? { ...r, status: 'error' as const }
+          : r
+      ));
+      
+      toast.error(`Failed to transcribe card ${cardIndex + 1}`);
+    }
+  };
+
+  const handleFinishSession = async () => {
+    if (isRecording) {
+      await stopRecording();
+    }
+
+    // Check if there are any recordings
+    if (recordings.length === 0) {
+      toast.error("No recordings found. Please record at least one card.");
+      return;
+    }
+
+    // Wait for any processing recordings to complete
+    const processingRecordings = recordings.filter(r => r.status === 'processing');
+    if (processingRecordings.length > 0) {
+      toast.info(`Waiting for ${processingRecordings.length} recording(s) to finish processing...`);
+      
+      // Wait up to 30 seconds for processing to complete
+      const maxWait = 30000;
+      const checkInterval = 500;
+      let waited = 0;
+      
+      while (waited < maxWait) {
+        await new Promise(resolve => setTimeout(resolve, checkInterval));
+        waited += checkInterval;
+        
+        const stillProcessing = recordings.filter(r => r.status === 'processing').length;
+        if (stillProcessing === 0) break;
+      }
+    }
+
+    // Save session recordings to localStorage
+    const completedRecordings = recordings.filter(r => r.status === 'completed');
+    
+    if (completedRecordings.length === 0) {
+      toast.error("No completed recordings. Please wait for processing to finish.");
+      return;
+    }
+
+    localStorage.setItem('sessionRecordings', JSON.stringify({
+      recordings: completedRecordings,
+      scenarioTitle: scenarioTitle
+    }));
+
+    toast.success("Session complete!");
+    navigate("/results");
+  };
+
+  const getCardStatus = (index: number) => {
+    const recording = recordings.find(r => r.cardIndex === index);
+    return recording?.status || 'idle';
+  };
+
   const handleFillerWord = () => {
     setFillerWordCount((prev) => prev + 1);
   };
 
   const nextCard = () => {
     if (currentCardIndex < totalCards - 1) {
-      setCurrentCardIndex((prev) => prev + 1);
       if (isRecording) {
         stopRecording();
       }
+      setCurrentCardIndex((prev) => prev + 1);
+      setRecordingTime(0);
+      setFillerWordCount(0);
     }
   };
 
   const previousCard = () => {
     if (currentCardIndex > 0) {
-      setCurrentCardIndex((prev) => prev - 1);
       if (isRecording) {
         stopRecording();
       }
+      setCurrentCardIndex((prev) => prev - 1);
+      setRecordingTime(0);
+      setFillerWordCount(0);
     }
   };
 
@@ -190,21 +305,58 @@ const PracticeSession = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const completedCount = recordings.filter(r => r.status === 'completed').length;
+
   return (
     <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-6 sm:pb-8 px-4 sm:px-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 glass-medium backdrop-blur-md shadow-glass">
-          {currentCardIndex + 1}/{totalCards}
-        </Badge>
-        <Button variant="ghost" size="icon" onClick={handleExit} className="glass-ultralight backdrop-blur-md hover:shadow-glass h-8 w-8 sm:h-10 sm:w-10">
-          <X className="h-4 w-4 sm:h-5 sm:w-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 glass-medium backdrop-blur-md shadow-glass">
+            {currentCardIndex + 1}/{totalCards}
+          </Badge>
+          {completedCount > 0 && (
+            <Badge variant="default" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 glass-light">
+              <Check className="h-3 w-3 mr-1" />
+              {completedCount} done
+            </Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={handleFinishSession}
+            className="gap-2 text-xs sm:text-sm"
+            size="sm"
+            disabled={recordings.length === 0}
+          >
+            <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
+            Finish
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleExit} className="glass-ultralight backdrop-blur-md hover:shadow-glass h-8 w-8 sm:h-10 sm:w-10">
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Prompt Card */}
-      <Card className="border-2 border-primary/30 shadow-glass-lg hover:shadow-glass-lg transition-smooth">
+      <Card className="border-2 border-primary/30 shadow-glass-lg hover:shadow-glass-lg transition-smooth relative">
         <CardContent className="py-6 px-4 sm:py-8 sm:px-6 lg:py-12 lg:px-8">
+          {getCardStatus(currentCardIndex) === 'completed' && (
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+              <Badge variant="default" className="gap-1 glass-light">
+                <Check className="h-3 w-3" />
+                Done
+              </Badge>
+            </div>
+          )}
+          {getCardStatus(currentCardIndex) === 'processing' && (
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+              <Badge variant="secondary" className="gap-1 glass-light">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Processing
+              </Badge>
+            </div>
+          )}
           <p className="text-base sm:text-lg lg:text-2xl text-center leading-relaxed font-medium break-words">
             {currentPrompt}
           </p>
