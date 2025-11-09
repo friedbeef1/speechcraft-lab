@@ -346,11 +346,11 @@ const PracticeSession = () => {
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 glass-medium backdrop-blur-md shadow-glass">
+          <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 glass-medium backdrop-blur-md shadow-glass text-gray-900 dark:text-foreground">
             {currentCardIndex + 1}/{totalCards}
           </Badge>
           {completedCount > 0 && (
-            <Badge variant="default" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 glass-light">
+            <Badge variant="default" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 glass-light text-gray-900 dark:text-white">
               <Check className="h-3 w-3 mr-1" />
               {completedCount} done
             </Badge>
