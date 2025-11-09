@@ -29,7 +29,11 @@ interface Scenario {
   icon: React.ElementType;
   title: string;
   description: string;
-  prompts: { id: string; text: string; tips: string[] }[];
+  prompts: {
+    id: string;
+    text: string;
+    tips: string[];
+  }[];
 }
 
 // Sample data for pre-built scenarios
@@ -39,98 +43,173 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     icon: Sprout,
     title: "Backyard Composting",
     description: "Your neighbor is curious about your compost bin. You both have different approaches to reducing food waste but love swapping tips!",
-    prompts: [
-      { id: "1", text: "What got you interested in composting, and how has it been going?", tips: ["Share your personal motivation (reducing waste, helping garden, etc.)", "Mention specific benefits you've noticed", "Be honest about challenges you've faced"] },
-      { id: "2", text: "What tips would you share with someone just starting out?", tips: ["Focus on practical, easy-to-implement advice", "Share what worked well for you", "Mention common mistakes to avoid"] },
-      { id: "3", text: "Have you noticed any benefits beyond reducing waste?", tips: ["Talk about soil quality improvements", "Mention environmental impact awareness", "Share unexpected positive outcomes"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What got you interested in composting, and how has it been going?",
+      tips: ["Share your personal motivation (reducing waste, helping garden, etc.)", "Mention specific benefits you've noticed", "Be honest about challenges you've faced"]
+    }, {
+      id: "2",
+      text: "What tips would you share with someone just starting out?",
+      tips: ["Focus on practical, easy-to-implement advice", "Share what worked well for you", "Mention common mistakes to avoid"]
+    }, {
+      id: "3",
+      text: "Have you noticed any benefits beyond reducing waste?",
+      tips: ["Talk about soil quality improvements", "Mention environmental impact awareness", "Share unexpected positive outcomes"]
+    }]
   }, {
     id: "neighborhood-2",
     icon: Users,
     title: "Carpool Plans",
     description: "Chatting over the fence about organizing a neighborhood carpool. Different schedules but everyone wants to reduce emissions together",
-    prompts: [
-      { id: "1", text: "What days and times work best for your commute?", tips: ["Be specific about your schedule flexibility", "Consider typical traffic patterns", "Mention any regular schedule variations"] },
-      { id: "2", text: "How could carpooling fit into our different schedules?", tips: ["Suggest flexible rotation ideas", "Discuss backup plans for off days", "Consider hybrid approaches (some days carpooling, some not)"] },
-      { id: "3", text: "What would make a carpool work well for everyone?", tips: ["Talk about communication methods", "Suggest fair cost-sharing approaches", "Mention comfort and music preferences"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What days and times work best for your commute?",
+      tips: ["Be specific about your schedule flexibility", "Consider typical traffic patterns", "Mention any regular schedule variations"]
+    }, {
+      id: "2",
+      text: "How could carpooling fit into our different schedules?",
+      tips: ["Suggest flexible rotation ideas", "Discuss backup plans for off days", "Consider hybrid approaches (some days carpooling, some not)"]
+    }, {
+      id: "3",
+      text: "What would make a carpool work well for everyone?",
+      tips: ["Talk about communication methods", "Suggest fair cost-sharing approaches", "Mention comfort and music preferences"]
+    }]
   }, {
     id: "neighborhood-3",
     icon: TreePine,
     title: "Community Garden",
     description: "Discussing starting a shared garden space. You prefer different veggies but both excited about local growing!",
-    prompts: [
-      { id: "1", text: "What would you most like to grow in a shared garden?", tips: ["Share your favorite vegetables or herbs", "Mention plants that grow well in your climate", "Talk about what you'd enjoy cooking with"] },
-      { id: "2", text: "How could we organize it so everyone can participate?", tips: ["Suggest plot assignment systems", "Discuss shared responsibilities", "Consider accessibility for all neighbors"] },
-      { id: "3", text: "What benefits do you see for the neighborhood?", tips: ["Talk about community building aspects", "Mention fresh food access", "Discuss educational opportunities for kids"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What would you most like to grow in a shared garden?",
+      tips: ["Share your favorite vegetables or herbs", "Mention plants that grow well in your climate", "Talk about what you'd enjoy cooking with"]
+    }, {
+      id: "2",
+      text: "How could we organize it so everyone can participate?",
+      tips: ["Suggest plot assignment systems", "Discuss shared responsibilities", "Consider accessibility for all neighbors"]
+    }, {
+      id: "3",
+      text: "What benefits do you see for the neighborhood?",
+      tips: ["Talk about community building aspects", "Mention fresh food access", "Discuss educational opportunities for kids"]
+    }]
   }],
   friends: [{
     id: "friends-1",
     icon: ShoppingBag,
     title: "Eco Product Debate",
     description: "Friendly discussion about best reusable products - metal straws vs bamboo? Everyone has their favorites!",
-    prompts: [
-      { id: "1", text: "What reusable products have worked best for you?", tips: ["Share specific products you use daily", "Mention durability and ease of use", "Talk about what made you switch"] },
-      { id: "2", text: "How do you balance convenience with sustainability?", tips: ["Discuss realistic trade-offs you make", "Share systems that work for your lifestyle", "Be honest about when you compromise"] },
-      { id: "3", text: "Have you found any eco-friendly swaps that surprised you?", tips: ["Talk about unexpected favorites", "Mention swaps that were easier than expected", "Share any that didn't work as planned"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What reusable products have worked best for you?",
+      tips: ["Share specific products you use daily", "Mention durability and ease of use", "Talk about what made you switch"]
+    }, {
+      id: "2",
+      text: "How do you balance convenience with sustainability?",
+      tips: ["Discuss realistic trade-offs you make", "Share systems that work for your lifestyle", "Be honest about when you compromise"]
+    }, {
+      id: "3",
+      text: "Have you found any eco-friendly swaps that surprised you?",
+      tips: ["Talk about unexpected favorites", "Mention swaps that were easier than expected", "Share any that didn't work as planned"]
+    }]
   }, {
     id: "friends-2",
     icon: Bike,
     title: "Green Weekend Trip",
     description: "Planning a sustainable weekend adventure. Camping vs biking vs train travel - lots of fun options to explore together",
-    prompts: [
-      { id: "1", text: "What kind of sustainable adventure sounds most fun?", tips: ["Share your outdoor interests", "Mention fitness levels to consider", "Talk about what makes a trip memorable for you"] },
-      { id: "2", text: "How can we minimize our environmental impact while traveling?", tips: ["Discuss transportation options", "Mention leave-no-trace principles", "Talk about supporting local businesses"] },
-      { id: "3", text: "What would make this trip memorable and eco-friendly?", tips: ["Share ideas for unique experiences", "Mention activities that connect with nature", "Discuss group bonding opportunities"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What kind of sustainable adventure sounds most fun?",
+      tips: ["Share your outdoor interests", "Mention fitness levels to consider", "Talk about what makes a trip memorable for you"]
+    }, {
+      id: "2",
+      text: "How can we minimize our environmental impact while traveling?",
+      tips: ["Discuss transportation options", "Mention leave-no-trace principles", "Talk about supporting local businesses"]
+    }, {
+      id: "3",
+      text: "What would make this trip memorable and eco-friendly?",
+      tips: ["Share ideas for unique experiences", "Mention activities that connect with nature", "Discuss group bonding opportunities"]
+    }]
   }, {
     id: "friends-3",
     icon: Recycle,
     title: "Waste Reduction Tips",
     description: "Swapping household tips over coffee. Different approaches to reducing plastic, but all making positive changes",
-    prompts: [
-      { id: "1", text: "What's your favorite way to reduce plastic at home?", tips: ["Share your go-to strategies", "Mention easy wins you've found", "Talk about impact you've noticed"] },
-      { id: "2", text: "Have you found any creative ways to reuse things?", tips: ["Share specific examples from your home", "Mention DIY projects you've tried", "Talk about unexpected uses you discovered"] },
-      { id: "3", text: "What's been the easiest change you've made?", tips: ["Focus on simple swaps that stuck", "Mention why it was easy for you", "Share how others could try it too"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What's your favorite way to reduce plastic at home?",
+      tips: ["Share your go-to strategies", "Mention easy wins you've found", "Talk about impact you've noticed"]
+    }, {
+      id: "2",
+      text: "Have you found any creative ways to reuse things?",
+      tips: ["Share specific examples from your home", "Mention DIY projects you've tried", "Talk about unexpected uses you discovered"]
+    }, {
+      id: "3",
+      text: "What's been the easiest change you've made?",
+      tips: ["Focus on simple swaps that stuck", "Mention why it was easy for you", "Share how others could try it too"]
+    }]
   }],
   workBreak: [{
     id: "work-1",
     icon: Bike,
     title: "Biking to Work",
     description: "Water cooler chat about commute options. Some bike, some bus, some carpool - comparing experiences and tips",
-    prompts: [
-      { id: "1", text: "What's your current commute like, and what would you change?", tips: ["Share your current method and duration", "Mention aspects you enjoy or dislike", "Talk about what would make it better"] },
-      { id: "2", text: "What would make biking to work more appealing for you?", tips: ["Discuss infrastructure needs (bike lanes, parking)", "Mention workplace facilities (showers, lockers)", "Talk about safety and weather concerns"] },
-      { id: "3", text: "How do weather and distance factor into your choice?", tips: ["Be realistic about weather challenges", "Discuss seasonal variations", "Mention backup plans for bad days"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What's your current commute like, and what would you change?",
+      tips: ["Share your current method and duration", "Mention aspects you enjoy or dislike", "Talk about what would make it better"]
+    }, {
+      id: "2",
+      text: "What would make biking to work more appealing for you?",
+      tips: ["Discuss infrastructure needs (bike lanes, parking)", "Mention workplace facilities (showers, lockers)", "Talk about safety and weather concerns"]
+    }, {
+      id: "3",
+      text: "How do weather and distance factor into your choice?",
+      tips: ["Be realistic about weather challenges", "Discuss seasonal variations", "Mention backup plans for bad days"]
+    }]
   }, {
     id: "work-2",
     icon: Recycle,
     title: "Office Recycling",
     description: "Discussing how to improve workplace sustainability. Different ideas but everyone wants to help!",
-    prompts: [
-      { id: "1", text: "What sustainability ideas would work well in our office?", tips: ["Suggest specific, actionable changes", "Consider what would get buy-in", "Mention cost-effective options"] },
-      { id: "2", text: "How could we make recycling more convenient here?", tips: ["Talk about bin placement and labeling", "Discuss education and reminders", "Mention making it as easy as trash"] },
-      { id: "3", text: "What positive changes have you seen at other workplaces?", tips: ["Share specific examples from past jobs", "Mention what made them successful", "Talk about employee engagement"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What sustainability ideas would work well in our office?",
+      tips: ["Suggest specific, actionable changes", "Consider what would get buy-in", "Mention cost-effective options"]
+    }, {
+      id: "2",
+      text: "How could we make recycling more convenient here?",
+      tips: ["Talk about bin placement and labeling", "Discuss education and reminders", "Mention making it as easy as trash"]
+    }, {
+      id: "3",
+      text: "What positive changes have you seen at other workplaces?",
+      tips: ["Share specific examples from past jobs", "Mention what made them successful", "Talk about employee engagement"]
+    }]
   }, {
     id: "work-3",
     icon: Coffee,
     title: "Lunch Container Choices",
     description: "Chatting about reusable containers and meal prep. Everyone has different systems that work for them",
-    prompts: [
-      { id: "1", text: "What's your go-to system for bringing lunch?", tips: ["Share your container preferences", "Mention prep routines that work", "Talk about what keeps food fresh"] },
-      { id: "2", text: "How do you balance convenience with reducing waste?", tips: ["Discuss time-saving strategies", "Mention meal prep approaches", "Talk about occasional exceptions"] },
-      { id: "3", text: "Any container recommendations that actually work?", tips: ["Share specific brands or types", "Mention leak-proof and durable options", "Talk about cleaning and maintenance"] }
-    ]
+    prompts: [{
+      id: "1",
+      text: "What's your go-to system for bringing lunch?",
+      tips: ["Share your container preferences", "Mention prep routines that work", "Talk about what keeps food fresh"]
+    }, {
+      id: "2",
+      text: "How do you balance convenience with reducing waste?",
+      tips: ["Discuss time-saving strategies", "Mention meal prep approaches", "Talk about occasional exceptions"]
+    }, {
+      id: "3",
+      text: "Any container recommendations that actually work?",
+      tips: ["Share specific brands or types", "Mention leak-proof and durable options", "Talk about cleaning and maintenance"]
+    }]
   }]
 };
 const Index = () => {
   const navigate = useNavigate();
-  const { user, isGuest } = useAuth();
+  const {
+    user,
+    isGuest
+  } = useAuth();
   const [userScenarios, setUserScenarios] = useState<StoredScenario[]>([]);
   useEffect(() => {
     // Load scenarios from localStorage on mount
@@ -162,7 +241,6 @@ const Index = () => {
     toast.success(`Starting: ${scenario.title}`);
     navigate("/session");
   };
-  
   const handleStartUserScenario = (scenario: StoredScenario) => {
     if (!user && !isGuest) {
       toast.error("Please sign in or continue as guest");
@@ -182,20 +260,18 @@ const Index = () => {
   };
   return <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Practice Scenarios</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Talk about the environment</h1>
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
-        {!user && isGuest && (
-          <div className="p-4 glass-light rounded-lg border border-border/50">
+        {!user && isGuest && <div className="p-4 glass-light rounded-lg border border-border/50">
             <p className="text-sm text-muted-foreground mb-2">
               💡 <strong>Sign up</strong> to save your practice sessions and track your progress over time!
             </p>
             <Button onClick={() => navigate("/auth")} size="sm" variant="outline">
               Sign Up / Sign In
             </Button>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Pre-built Scenarios Section */}
@@ -330,10 +406,16 @@ const Index = () => {
                       <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
-                      <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEdit(scenario.id); }} className="h-8 w-8 sm:h-9 sm:w-9">
+                      <Button size="icon" variant="ghost" onClick={e => {
+                  e.stopPropagation();
+                  handleEdit(scenario.id);
+                }} className="h-8 w-8 sm:h-9 sm:w-9">
                         <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDelete(scenario.id); }} className="h-8 w-8 sm:h-9 sm:w-9">
+                      <Button size="icon" variant="ghost" onClick={e => {
+                  e.stopPropagation();
+                  handleDelete(scenario.id);
+                }} className="h-8 w-8 sm:h-9 sm:w-9">
                         <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
