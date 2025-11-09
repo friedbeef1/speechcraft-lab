@@ -17,13 +17,11 @@ import { TipCard } from "@/components/TipCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-// Sample prompts (in production, these would come from the previous screen)
-const samplePrompts = [
-  "Describe your ideal work environment and explain why it would help you be productive.",
-  "Share a challenging situation you faced recently and how you overcame it.",
-  "Explain a complex topic you're passionate about to someone who knows nothing about it.",
-  "Discuss your thoughts on work-life balance and how you maintain it.",
-  "Describe a time when you had to adapt quickly to a significant change.",
+// Fallback prompts if no scenario is loaded
+const fallbackPrompts = [
+  "Share your thoughts on this topic and why it matters.",
+  "Describe a recent experience related to this subject.",
+  "Explain your perspective in a way that's easy to understand.",
 ];
 
 const tips = [
@@ -42,13 +40,28 @@ const PracticeSession = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [fillerWordCount, setFillerWordCount] = useState(0);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+  const [prompts, setPrompts] = useState<string[]>([]);
+  const [scenarioTitle, setScenarioTitle] = useState<string>('Practice Session');
 
   const recorderRef = useRef<AudioRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const currentPrompt = samplePrompts[currentCardIndex];
-  const currentTip = tips[currentCardIndex];
-  const totalCards = samplePrompts.length;
+  useEffect(() => {
+    // Load scenario data from localStorage
+    const activeScenarioData = localStorage.getItem('activeScenario');
+    if (activeScenarioData) {
+      const scenario = JSON.parse(activeScenarioData);
+      setPrompts(scenario.prompts.map((p: any) => p.text));
+      setScenarioTitle(scenario.title);
+    } else {
+      // Fallback to sample prompts if no scenario loaded
+      setPrompts(fallbackPrompts);
+    }
+  }, []);
+
+  const currentPrompt = prompts[currentCardIndex] || "";
+  const currentTip = tips[currentCardIndex % tips.length];
+  const totalCards = prompts.length;
 
   useEffect(() => {
     return () => {
@@ -120,7 +133,8 @@ const PracticeSession = () => {
             duration: recordingTime,
             audioBlob: base64Audio,
             fillerWordCount: data.fillerWordCount,
-            prompt: currentPrompt
+            prompt: currentPrompt,
+            scenarioTitle: scenarioTitle
           }));
 
           toast.success("Transcription complete!");

@@ -28,6 +28,7 @@ interface Scenario {
   icon: React.ElementType;
   title: string;
   description: string;
+  prompts: { id: string; text: string }[];
 }
 
 // Sample data for pre-built scenarios
@@ -36,49 +37,94 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     id: "neighborhood-1",
     icon: Sprout,
     title: "Backyard Composting",
-    description: "Your neighbor is curious about your compost bin. You both have different approaches to reducing food waste but love swapping tips!"
+    description: "Your neighbor is curious about your compost bin. You both have different approaches to reducing food waste but love swapping tips!",
+    prompts: [
+      { id: "1", text: "What got you interested in composting, and how has it been going?" },
+      { id: "2", text: "What tips would you share with someone just starting out?" },
+      { id: "3", text: "Have you noticed any benefits beyond reducing waste?" }
+    ]
   }, {
     id: "neighborhood-2",
     icon: Users,
     title: "Carpool Plans",
-    description: "Chatting over the fence about organizing a neighborhood carpool. Different schedules but everyone wants to reduce emissions together"
+    description: "Chatting over the fence about organizing a neighborhood carpool. Different schedules but everyone wants to reduce emissions together",
+    prompts: [
+      { id: "1", text: "What days and times work best for your commute?" },
+      { id: "2", text: "How could carpooling fit into our different schedules?" },
+      { id: "3", text: "What would make a carpool work well for everyone?" }
+    ]
   }, {
     id: "neighborhood-3",
     icon: TreePine,
     title: "Community Garden",
-    description: "Discussing starting a shared garden space. You prefer different veggies but both excited about local growing!"
+    description: "Discussing starting a shared garden space. You prefer different veggies but both excited about local growing!",
+    prompts: [
+      { id: "1", text: "What would you most like to grow in a shared garden?" },
+      { id: "2", text: "How could we organize it so everyone can participate?" },
+      { id: "3", text: "What benefits do you see for the neighborhood?" }
+    ]
   }],
   friends: [{
     id: "friends-1",
     icon: ShoppingBag,
     title: "Eco Product Debate",
-    description: "Friendly discussion about best reusable products - metal straws vs bamboo? Everyone has their favorites!"
+    description: "Friendly discussion about best reusable products - metal straws vs bamboo? Everyone has their favorites!",
+    prompts: [
+      { id: "1", text: "What reusable products have worked best for you?" },
+      { id: "2", text: "How do you balance convenience with sustainability?" },
+      { id: "3", text: "Have you found any eco-friendly swaps that surprised you?" }
+    ]
   }, {
     id: "friends-2",
     icon: Bike,
     title: "Green Weekend Trip",
-    description: "Planning a sustainable weekend adventure. Camping vs biking vs train travel - lots of fun options to explore together"
+    description: "Planning a sustainable weekend adventure. Camping vs biking vs train travel - lots of fun options to explore together",
+    prompts: [
+      { id: "1", text: "What kind of sustainable adventure sounds most fun?" },
+      { id: "2", text: "How can we minimize our environmental impact while traveling?" },
+      { id: "3", text: "What would make this trip memorable and eco-friendly?" }
+    ]
   }, {
     id: "friends-3",
     icon: Recycle,
     title: "Waste Reduction Tips",
-    description: "Swapping household tips over coffee. Different approaches to reducing plastic, but all making positive changes"
+    description: "Swapping household tips over coffee. Different approaches to reducing plastic, but all making positive changes",
+    prompts: [
+      { id: "1", text: "What's your favorite way to reduce plastic at home?" },
+      { id: "2", text: "Have you found any creative ways to reuse things?" },
+      { id: "3", text: "What's been the easiest change you've made?" }
+    ]
   }],
   workBreak: [{
     id: "work-1",
     icon: Bike,
     title: "Biking to Work",
-    description: "Water cooler chat about commute options. Some bike, some bus, some carpool - comparing experiences and tips"
+    description: "Water cooler chat about commute options. Some bike, some bus, some carpool - comparing experiences and tips",
+    prompts: [
+      { id: "1", text: "What's your current commute like, and what would you change?" },
+      { id: "2", text: "What would make biking to work more appealing for you?" },
+      { id: "3", text: "How do weather and distance factor into your choice?" }
+    ]
   }, {
     id: "work-2",
     icon: Recycle,
     title: "Office Recycling",
-    description: "Discussing how to improve workplace sustainability. Different ideas but everyone wants to help!"
+    description: "Discussing how to improve workplace sustainability. Different ideas but everyone wants to help!",
+    prompts: [
+      { id: "1", text: "What sustainability ideas would work well in our office?" },
+      { id: "2", text: "How could we make recycling more convenient here?" },
+      { id: "3", text: "What positive changes have you seen at other workplaces?" }
+    ]
   }, {
     id: "work-3",
     icon: Coffee,
     title: "Lunch Container Choices",
-    description: "Chatting about reusable containers and meal prep. Everyone has different systems that work for them"
+    description: "Chatting about reusable containers and meal prep. Everyone has different systems that work for them",
+    prompts: [
+      { id: "1", text: "What's your go-to system for bringing lunch?" },
+      { id: "2", text: "How do you balance convenience with reducing waste?" },
+      { id: "3", text: "Any container recommendations that actually work?" }
+    ]
   }]
 };
 const Index = () => {
@@ -100,8 +146,24 @@ const Index = () => {
     setUserScenarios(prev => prev.filter(s => s.id !== id));
     toast.success("Scenario deleted");
   };
-  const handleStartScenario = (title: string) => {
-    toast.success(`Starting: ${title}`);
+  const handleStartScenario = (scenario: Scenario) => {
+    localStorage.setItem('activeScenario', JSON.stringify({
+      title: scenario.title,
+      description: scenario.description,
+      prompts: scenario.prompts
+    }));
+    toast.success(`Starting: ${scenario.title}`);
+    navigate("/session");
+  };
+  
+  const handleStartUserScenario = (scenario: StoredScenario) => {
+    localStorage.setItem('activeScenario', JSON.stringify({
+      title: scenario.title,
+      description: scenario.description,
+      prompts: scenario.prompts
+    }));
+    toast.success(`Starting: ${scenario.title}`);
+    navigate("/session");
   };
   const handleFreestyle = () => {
     navigate("/prepare?mode=freestyle");
@@ -138,7 +200,7 @@ const Index = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2 sm:pt-4">
-                  {prebuiltScenarios.neighborhood.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario.title)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
+                  {prebuiltScenarios.neighborhood.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
                       <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
                         <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
@@ -167,7 +229,7 @@ const Index = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2 sm:pt-4">
-                  {prebuiltScenarios.friends.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario.title)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
+                  {prebuiltScenarios.friends.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
                       <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
                         <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
@@ -196,7 +258,7 @@ const Index = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2 sm:pt-4">
-                  {prebuiltScenarios.workBreak.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario.title)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
+                  {prebuiltScenarios.workBreak.map(scenario => <button key={scenario.id} onClick={() => handleStartScenario(scenario)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
                       <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
                         <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
@@ -237,7 +299,7 @@ const Index = () => {
             </div> : <div className="space-y-3">
               {userScenarios.map(scenario => {
             const IconComponent = iconMap[scenario.icon] || Mic;
-            return <div key={scenario.id} className="flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth">
+            return <button key={scenario.id} onClick={() => handleStartUserScenario(scenario)} className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]">
                     <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
                       <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
@@ -246,14 +308,14 @@ const Index = () => {
                       <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(scenario.id)} className="h-8 w-8 sm:h-9 sm:w-9">
+                      <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEdit(scenario.id); }} className="h-8 w-8 sm:h-9 sm:w-9">
                         <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => handleDelete(scenario.id)} className="h-8 w-8 sm:h-9 sm:w-9">
+                      <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDelete(scenario.id); }} className="h-8 w-8 sm:h-9 sm:w-9">
                         <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
-                  </div>;
+                  </button>;
           })}
             </div>}
         </CardContent>
