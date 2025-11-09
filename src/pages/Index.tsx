@@ -28,7 +28,7 @@ interface Scenario {
   icon: React.ElementType;
   title: string;
   description: string;
-  prompts: { id: string; text: string }[];
+  prompts: { id: string; text: string; tips: string[] }[];
 }
 
 // Sample data for pre-built scenarios
@@ -39,9 +39,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Backyard Composting",
     description: "Your neighbor is curious about your compost bin. You both have different approaches to reducing food waste but love swapping tips!",
     prompts: [
-      { id: "1", text: "What got you interested in composting, and how has it been going?" },
-      { id: "2", text: "What tips would you share with someone just starting out?" },
-      { id: "3", text: "Have you noticed any benefits beyond reducing waste?" }
+      { id: "1", text: "What got you interested in composting, and how has it been going?", tips: ["Share your personal motivation (reducing waste, helping garden, etc.)", "Mention specific benefits you've noticed", "Be honest about challenges you've faced"] },
+      { id: "2", text: "What tips would you share with someone just starting out?", tips: ["Focus on practical, easy-to-implement advice", "Share what worked well for you", "Mention common mistakes to avoid"] },
+      { id: "3", text: "Have you noticed any benefits beyond reducing waste?", tips: ["Talk about soil quality improvements", "Mention environmental impact awareness", "Share unexpected positive outcomes"] }
     ]
   }, {
     id: "neighborhood-2",
@@ -49,9 +49,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Carpool Plans",
     description: "Chatting over the fence about organizing a neighborhood carpool. Different schedules but everyone wants to reduce emissions together",
     prompts: [
-      { id: "1", text: "What days and times work best for your commute?" },
-      { id: "2", text: "How could carpooling fit into our different schedules?" },
-      { id: "3", text: "What would make a carpool work well for everyone?" }
+      { id: "1", text: "What days and times work best for your commute?", tips: ["Be specific about your schedule flexibility", "Consider typical traffic patterns", "Mention any regular schedule variations"] },
+      { id: "2", text: "How could carpooling fit into our different schedules?", tips: ["Suggest flexible rotation ideas", "Discuss backup plans for off days", "Consider hybrid approaches (some days carpooling, some not)"] },
+      { id: "3", text: "What would make a carpool work well for everyone?", tips: ["Talk about communication methods", "Suggest fair cost-sharing approaches", "Mention comfort and music preferences"] }
     ]
   }, {
     id: "neighborhood-3",
@@ -59,9 +59,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Community Garden",
     description: "Discussing starting a shared garden space. You prefer different veggies but both excited about local growing!",
     prompts: [
-      { id: "1", text: "What would you most like to grow in a shared garden?" },
-      { id: "2", text: "How could we organize it so everyone can participate?" },
-      { id: "3", text: "What benefits do you see for the neighborhood?" }
+      { id: "1", text: "What would you most like to grow in a shared garden?", tips: ["Share your favorite vegetables or herbs", "Mention plants that grow well in your climate", "Talk about what you'd enjoy cooking with"] },
+      { id: "2", text: "How could we organize it so everyone can participate?", tips: ["Suggest plot assignment systems", "Discuss shared responsibilities", "Consider accessibility for all neighbors"] },
+      { id: "3", text: "What benefits do you see for the neighborhood?", tips: ["Talk about community building aspects", "Mention fresh food access", "Discuss educational opportunities for kids"] }
     ]
   }],
   friends: [{
@@ -70,9 +70,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Eco Product Debate",
     description: "Friendly discussion about best reusable products - metal straws vs bamboo? Everyone has their favorites!",
     prompts: [
-      { id: "1", text: "What reusable products have worked best for you?" },
-      { id: "2", text: "How do you balance convenience with sustainability?" },
-      { id: "3", text: "Have you found any eco-friendly swaps that surprised you?" }
+      { id: "1", text: "What reusable products have worked best for you?", tips: ["Share specific products you use daily", "Mention durability and ease of use", "Talk about what made you switch"] },
+      { id: "2", text: "How do you balance convenience with sustainability?", tips: ["Discuss realistic trade-offs you make", "Share systems that work for your lifestyle", "Be honest about when you compromise"] },
+      { id: "3", text: "Have you found any eco-friendly swaps that surprised you?", tips: ["Talk about unexpected favorites", "Mention swaps that were easier than expected", "Share any that didn't work as planned"] }
     ]
   }, {
     id: "friends-2",
@@ -80,9 +80,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Green Weekend Trip",
     description: "Planning a sustainable weekend adventure. Camping vs biking vs train travel - lots of fun options to explore together",
     prompts: [
-      { id: "1", text: "What kind of sustainable adventure sounds most fun?" },
-      { id: "2", text: "How can we minimize our environmental impact while traveling?" },
-      { id: "3", text: "What would make this trip memorable and eco-friendly?" }
+      { id: "1", text: "What kind of sustainable adventure sounds most fun?", tips: ["Share your outdoor interests", "Mention fitness levels to consider", "Talk about what makes a trip memorable for you"] },
+      { id: "2", text: "How can we minimize our environmental impact while traveling?", tips: ["Discuss transportation options", "Mention leave-no-trace principles", "Talk about supporting local businesses"] },
+      { id: "3", text: "What would make this trip memorable and eco-friendly?", tips: ["Share ideas for unique experiences", "Mention activities that connect with nature", "Discuss group bonding opportunities"] }
     ]
   }, {
     id: "friends-3",
@@ -90,9 +90,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Waste Reduction Tips",
     description: "Swapping household tips over coffee. Different approaches to reducing plastic, but all making positive changes",
     prompts: [
-      { id: "1", text: "What's your favorite way to reduce plastic at home?" },
-      { id: "2", text: "Have you found any creative ways to reuse things?" },
-      { id: "3", text: "What's been the easiest change you've made?" }
+      { id: "1", text: "What's your favorite way to reduce plastic at home?", tips: ["Share your go-to strategies", "Mention easy wins you've found", "Talk about impact you've noticed"] },
+      { id: "2", text: "Have you found any creative ways to reuse things?", tips: ["Share specific examples from your home", "Mention DIY projects you've tried", "Talk about unexpected uses you discovered"] },
+      { id: "3", text: "What's been the easiest change you've made?", tips: ["Focus on simple swaps that stuck", "Mention why it was easy for you", "Share how others could try it too"] }
     ]
   }],
   workBreak: [{
@@ -101,9 +101,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Biking to Work",
     description: "Water cooler chat about commute options. Some bike, some bus, some carpool - comparing experiences and tips",
     prompts: [
-      { id: "1", text: "What's your current commute like, and what would you change?" },
-      { id: "2", text: "What would make biking to work more appealing for you?" },
-      { id: "3", text: "How do weather and distance factor into your choice?" }
+      { id: "1", text: "What's your current commute like, and what would you change?", tips: ["Share your current method and duration", "Mention aspects you enjoy or dislike", "Talk about what would make it better"] },
+      { id: "2", text: "What would make biking to work more appealing for you?", tips: ["Discuss infrastructure needs (bike lanes, parking)", "Mention workplace facilities (showers, lockers)", "Talk about safety and weather concerns"] },
+      { id: "3", text: "How do weather and distance factor into your choice?", tips: ["Be realistic about weather challenges", "Discuss seasonal variations", "Mention backup plans for bad days"] }
     ]
   }, {
     id: "work-2",
@@ -111,9 +111,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Office Recycling",
     description: "Discussing how to improve workplace sustainability. Different ideas but everyone wants to help!",
     prompts: [
-      { id: "1", text: "What sustainability ideas would work well in our office?" },
-      { id: "2", text: "How could we make recycling more convenient here?" },
-      { id: "3", text: "What positive changes have you seen at other workplaces?" }
+      { id: "1", text: "What sustainability ideas would work well in our office?", tips: ["Suggest specific, actionable changes", "Consider what would get buy-in", "Mention cost-effective options"] },
+      { id: "2", text: "How could we make recycling more convenient here?", tips: ["Talk about bin placement and labeling", "Discuss education and reminders", "Mention making it as easy as trash"] },
+      { id: "3", text: "What positive changes have you seen at other workplaces?", tips: ["Share specific examples from past jobs", "Mention what made them successful", "Talk about employee engagement"] }
     ]
   }, {
     id: "work-3",
@@ -121,9 +121,9 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
     title: "Lunch Container Choices",
     description: "Chatting about reusable containers and meal prep. Everyone has different systems that work for them",
     prompts: [
-      { id: "1", text: "What's your go-to system for bringing lunch?" },
-      { id: "2", text: "How do you balance convenience with reducing waste?" },
-      { id: "3", text: "Any container recommendations that actually work?" }
+      { id: "1", text: "What's your go-to system for bringing lunch?", tips: ["Share your container preferences", "Mention prep routines that work", "Talk about what keeps food fresh"] },
+      { id: "2", text: "How do you balance convenience with reducing waste?", tips: ["Discuss time-saving strategies", "Mention meal prep approaches", "Talk about occasional exceptions"] },
+      { id: "3", text: "Any container recommendations that actually work?", tips: ["Share specific brands or types", "Mention leak-proof and durable options", "Talk about cleaning and maintenance"] }
     ]
   }]
 };

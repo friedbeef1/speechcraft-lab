@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Lightbulb } from "lucide-react";
 
 interface TipCardProps {
-  tip: string;
+  tips: string[];
 }
 
-export function TipCard({ tip }: TipCardProps) {
+export function TipCard({ tips }: TipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
@@ -42,7 +42,14 @@ export function TipCard({ tip }: TipCardProps) {
           <CardContent className="py-4 sm:py-6 px-3 sm:px-6">
             <div className="flex items-start gap-2 sm:gap-3">
               <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
-              <p className="text-xs sm:text-sm">{tip}</p>
+              <div className="text-xs sm:text-sm space-y-1">
+                {tips.map((tip, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>

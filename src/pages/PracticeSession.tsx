@@ -17,19 +17,11 @@ import { TipCard } from "@/components/TipCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-// Fallback prompts if no scenario is loaded
+// Fallback data if no scenario is loaded
 const fallbackPrompts = [
-  "Share your thoughts on this topic and why it matters.",
-  "Describe a recent experience related to this subject.",
-  "Explain your perspective in a way that's easy to understand.",
-];
-
-const tips = [
-  "Take a deep breath before speaking. Pause for emphasis, not filler words.",
-  "Focus on one main point. Structure your thoughts: beginning, middle, end.",
-  "Use specific examples to make your points more memorable and engaging.",
-  "Vary your pace and tone to keep your audience interested.",
-  "If you lose your train of thought, it's okay to pause and collect yourself.",
+  { text: "Share your thoughts on this topic and why it matters.", tips: ["Focus on personal connection", "Use specific examples", "Keep it conversational"] },
+  { text: "Describe a recent experience related to this subject.", tips: ["Share concrete details", "Explain what you learned", "Connect to bigger picture"] },
+  { text: "Explain your perspective in a way that's easy to understand.", tips: ["Use simple language", "Break down complex ideas", "Relate to common experiences"] },
 ];
 
 const PracticeSession = () => {
@@ -40,7 +32,7 @@ const PracticeSession = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [fillerWordCount, setFillerWordCount] = useState(0);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
-  const [prompts, setPrompts] = useState<string[]>([]);
+  const [prompts, setPrompts] = useState<Array<{ text: string; tips: string[] }>>([]);
   const [scenarioTitle, setScenarioTitle] = useState<string>('Practice Session');
 
   const recorderRef = useRef<AudioRecorder | null>(null);
@@ -51,7 +43,7 @@ const PracticeSession = () => {
     const activeScenarioData = localStorage.getItem('activeScenario');
     if (activeScenarioData) {
       const scenario = JSON.parse(activeScenarioData);
-      setPrompts(scenario.prompts.map((p: any) => p.text));
+      setPrompts(scenario.prompts);
       setScenarioTitle(scenario.title);
     } else {
       // Fallback to sample prompts if no scenario loaded
@@ -59,8 +51,9 @@ const PracticeSession = () => {
     }
   }, []);
 
-  const currentPrompt = prompts[currentCardIndex] || "";
-  const currentTip = tips[currentCardIndex % tips.length];
+  const currentPromptData = prompts[currentCardIndex];
+  const currentPrompt = currentPromptData?.text || "";
+  const currentTips = currentPromptData?.tips || [];
   const totalCards = prompts.length;
 
   useEffect(() => {
@@ -317,7 +310,7 @@ const PracticeSession = () => {
 
       {/* Tip Card */}
       <div className="max-w-2xl mx-auto">
-        <TipCard tip={currentTip} />
+        <TipCard tips={currentTips} />
       </div>
     </div>
   );
