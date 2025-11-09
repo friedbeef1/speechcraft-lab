@@ -43,7 +43,6 @@ const PracticeSession = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [fillerWordCount, setFillerWordCount] = useState(0);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [prompts, setPrompts] = useState<Array<{ text: string; tips: string[] }>>([]);
   const [scenarioTitle, setScenarioTitle] = useState<string>('Practice Session');
@@ -89,7 +88,6 @@ const PracticeSession = () => {
       setAnalyser(recorder.getAnalyser());
       setIsRecording(true);
       setRecordingTime(0);
-      setFillerWordCount(0);
 
       // Start timer
       timerRef.current = setInterval(() => {
@@ -109,7 +107,6 @@ const PracticeSession = () => {
     try {
       const audioBlob = await recorderRef.current.stop();
       const duration = recordingTime;
-      const currentFillerCount = fillerWordCount;
       
       setIsRecording(false);
       setAnalyser(null);
@@ -134,8 +131,7 @@ const PracticeSession = () => {
           prompt: currentPrompt,
           audioBlob: base64Audio,
           status: 'processing',
-          duration: duration,
-          fillerWordCount: currentFillerCount
+          duration: duration
         };
         
         setRecordings(prev => {
@@ -152,7 +148,7 @@ const PracticeSession = () => {
         toast.success("Recording saved! Processing in background...");
         
         // Start background processing (don't await)
-        processRecordingInBackground(base64Audio, currentCardIndex, currentPrompt, duration, currentFillerCount);
+        processRecordingInBackground(base64Audio, currentCardIndex, currentPrompt, duration);
       };
 
       reader.onerror = () => {
@@ -169,8 +165,7 @@ const PracticeSession = () => {
     base64Audio: string,
     cardIndex: number,
     prompt: string,
-    duration: number,
-    fillerCount: number
+    duration: number
   ) => {
     try {
       // Call transcription service
@@ -294,10 +289,6 @@ const PracticeSession = () => {
     return recording?.status || 'idle';
   };
 
-  const handleFillerWord = () => {
-    setFillerWordCount((prev) => prev + 1);
-  };
-
   const nextCard = async () => {
     if (currentCardIndex < totalCards - 1) {
       if (isRecording) {
@@ -305,7 +296,6 @@ const PracticeSession = () => {
       }
       setCurrentCardIndex((prev) => prev + 1);
       setRecordingTime(0);
-      setFillerWordCount(0);
       
       // Auto-start recording on new card
       setTimeout(() => {
@@ -321,7 +311,6 @@ const PracticeSession = () => {
       }
       setCurrentCardIndex((prev) => prev - 1);
       setRecordingTime(0);
-      setFillerWordCount(0);
       
       // Auto-start recording on new card
       setTimeout(() => {
@@ -460,7 +449,7 @@ const PracticeSession = () => {
             isRecording={isRecording}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Standard Timer */}
             <Card className="shadow-glass hover:shadow-glass-lg transition-smooth">
               <CardContent className="py-4 sm:py-6 px-4 sm:px-6">
@@ -486,20 +475,6 @@ const PracticeSession = () => {
                 onComplete={handleTimerComplete}
               />
             </div>
-
-            {/* Filler Word Counter */}
-            <Card className="shadow-glass hover:shadow-glass-lg transition-smooth">
-              <CardContent className="py-4 sm:py-6 px-4 sm:px-6">
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">
-                    Fillers
-                  </p>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-500">
-                    {fillerWordCount}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       )}
