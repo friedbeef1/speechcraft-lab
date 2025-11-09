@@ -184,21 +184,21 @@ const PracticeSession = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-8">
+    <div className="max-w-4xl mx-auto space-y-6 pb-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Badge variant="secondary" className="text-lg px-4 py-2">
+        <Badge variant="secondary" className="text-lg px-4 py-2 glass-medium backdrop-blur-md shadow-glass">
           Card {currentCardIndex + 1} of {totalCards}
         </Badge>
-        <Button variant="ghost" size="icon" onClick={handleExit}>
+        <Button variant="ghost" size="icon" onClick={handleExit} className="glass-ultralight backdrop-blur-md hover:shadow-glass">
           <X className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Prompt Card */}
-      <Card className="border-2 border-primary/20 animate-fade-in">
+      <Card className="border-2 border-primary/30 shadow-glass-lg hover:shadow-glass-lg transition-smooth">
         <CardContent className="py-12 px-8">
-          <p className="text-2xl text-center leading-relaxed">
+          <p className="text-2xl text-center leading-relaxed font-medium">
             {currentPrompt}
           </p>
         </CardContent>
@@ -230,10 +230,10 @@ const PracticeSession = () => {
       <div className="flex justify-center py-4">
         <button
           onClick={isRecording ? stopRecording : startRecording}
-          className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:scale-105 ${
+          className={`w-24 h-24 rounded-full flex items-center justify-center transition-smooth shadow-glass-lg hover:scale-110 active:scale-95 ${
             isRecording
-              ? "bg-red-500 hover:bg-red-600 animate-pulse"
-              : "bg-primary hover:bg-primary/90"
+              ? "bg-gradient-to-br from-red-500 to-red-600 animate-glow-pulse glow-primary"
+              : "bg-gradient-to-br from-primary to-primary/80 glass-light backdrop-blur-xl border-2 border-white/20 glow-primary hover:shadow-glass-lg"
           }`}
         >
           {isRecording ? (
@@ -255,7 +255,7 @@ const PracticeSession = () => {
 
           <div className="flex items-center justify-center gap-8">
             {/* Standard Timer */}
-            <Card>
+            <Card className="shadow-glass hover:shadow-glass-lg transition-smooth">
               <CardContent className="py-6 px-8">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-1">
@@ -269,7 +269,7 @@ const PracticeSession = () => {
             </Card>
 
             {/* Circular Countdown Timer */}
-            <div className="text-center">
+            <div className="text-center glass-ultralight backdrop-blur-md rounded-2xl p-4 shadow-glass">
               <p className="text-sm text-muted-foreground mb-2">
                 Time Remaining
               </p>
@@ -281,7 +281,7 @@ const PracticeSession = () => {
             </div>
 
             {/* Filler Word Counter */}
-            <Card>
+            <Card className="shadow-glass hover:shadow-glass-lg transition-smooth">
               <CardContent className="py-6 px-8">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-1">

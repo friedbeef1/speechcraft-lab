@@ -9,10 +9,10 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-primary/5">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6">
+          <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border/50 glass-heavy backdrop-blur-xl shadow-glass px-6">
             <SidebarTrigger className="lg:hidden" />
             <div className="flex-1" />
             <ThemeToggle />

@@ -269,14 +269,14 @@ const SessionResults = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-8">
+    <div className="max-w-6xl mx-auto space-y-6 pb-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
+        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2 glass-ultralight backdrop-blur-md">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Button>
-        <Badge variant="secondary" className="text-lg px-4 py-2">
+        <Badge variant="secondary" className="text-lg px-4 py-2 glass-medium backdrop-blur-md shadow-glass">
           <CheckCircle2 className="h-4 w-4 mr-2" />
           Analysis Complete
         </Badge>
@@ -286,7 +286,7 @@ const SessionResults = () => {
 
       {/* Key Metrics */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Fluency Score</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -297,7 +297,7 @@ const SessionResults = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Word Count</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -308,7 +308,7 @@ const SessionResults = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Speech Rate</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
@@ -319,7 +319,7 @@ const SessionResults = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Filler Words</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -335,7 +335,7 @@ const SessionResults = () => {
 
       {/* AI Feedback */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="hover:shadow-glass-lg transition-smooth">
           <CardHeader>
             <CardTitle>Delivery Feedback</CardTitle>
             <CardDescription>Pace, tone, and speaking style</CardDescription>
@@ -352,7 +352,7 @@ const SessionResults = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-glass-lg transition-smooth">
           <CardHeader>
             <CardTitle>Content Feedback</CardTitle>
             <CardDescription>Clarity, structure, and engagement</CardDescription>
@@ -371,7 +371,7 @@ const SessionResults = () => {
       </div>
 
       {/* Vocal Variation Chart */}
-      <Card>
+      <Card className="hover:shadow-glass-lg transition-smooth">
         <CardHeader>
           <CardTitle>Vocal Variation</CardTitle>
           <CardDescription>Pitch and volume throughout your speech</CardDescription>
@@ -402,7 +402,7 @@ const SessionResults = () => {
 
       {/* Prompt Display */}
       {recordingData && (
-        <Card>
+        <Card className="hover:shadow-glass-lg transition-smooth">
           <CardHeader>
             <CardTitle>Practice Prompt</CardTitle>
             <CardDescription>The prompt you responded to</CardDescription>
@@ -414,14 +414,14 @@ const SessionResults = () => {
       )}
 
       {/* Full Transcript and Recording */}
-      <Card>
+      <Card className="hover:shadow-glass-lg transition-smooth">
         <CardHeader>
           <CardTitle>Full Recording & Transcript</CardTitle>
           <CardDescription>Complete audio and text from your session</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {audioUrl && (
-            <div className="p-4 bg-muted rounded-lg">
+            <div className="p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
               <audio controls className="w-full">
                 <source src={audioUrl} type="audio/webm" />
                 Your browser does not support the audio element.
@@ -432,7 +432,7 @@ const SessionResults = () => {
           <div className="space-y-2">
             <p className="text-sm font-medium">Transcript (filler words highlighted):</p>
             <div 
-              className="text-sm leading-relaxed p-4 bg-muted/50 rounded-lg"
+              className="text-sm leading-relaxed p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass"
               dangerouslySetInnerHTML={{ __html: highlightFillerWords(recordingData?.transcript || '') }}
             />
           </div>
@@ -441,7 +441,7 @@ const SessionResults = () => {
 
       {/* Action Buttons */}
       <div className="flex gap-4">
-        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1">
+        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1 glow-primary">
           Practice Again
         </Button>
         <Button size="lg" variant="outline" onClick={exportToPDF} className="flex-1 gap-2">

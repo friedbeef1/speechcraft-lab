@@ -21,12 +21,12 @@ export function TipCard({ tip }: TipCardProps) {
       >
         {/* Front of card */}
         <Card
-          className={`backface-hidden ${
+          className={`backface-hidden shadow-glass hover:shadow-glass-lg transition-smooth ${
             isFlipped ? "invisible" : "visible"
           }`}
         >
           <CardContent className="flex items-center justify-center gap-3 py-6">
-            <Lightbulb className="h-5 w-5 text-primary" />
+            <Lightbulb className="h-5 w-5 text-primary animate-float" />
             <span className="text-muted-foreground">
               Need a hint? Click here
             </span>
@@ -35,7 +35,7 @@ export function TipCard({ tip }: TipCardProps) {
 
         {/* Back of card */}
         <Card
-          className={`absolute inset-0 backface-hidden rotate-y-180 ${
+          className={`absolute inset-0 backface-hidden rotate-y-180 shadow-glass-lg ${
             isFlipped ? "visible" : "invisible"
           }`}
         >

@@ -144,7 +144,7 @@ const Index = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">Practice Scenarios</h1>
         <p className="text-muted-foreground text-lg">
@@ -153,14 +153,14 @@ const Index = () => {
       </div>
 
       {/* Your Scenarios Section */}
-      <Card>
+      <Card className="hover:shadow-glass-lg transition-smooth">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Your Scenarios</CardTitle>
               <CardDescription>Custom scenarios you've created</CardDescription>
             </div>
-            <Button onClick={handleCreateNew} className="gap-2">
+            <Button onClick={handleCreateNew} className="gap-2 glow-primary">
               <Plus className="h-4 w-4" />
               Create New
             </Button>
@@ -168,8 +168,8 @@ const Index = () => {
         </CardHeader>
         <CardContent>
           {userScenarios.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <div className="text-center py-12 border-2 border-dashed border-border/50 rounded-lg glass-ultralight backdrop-blur-md">
+              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-float" />
               <h3 className="text-lg font-semibold mb-2">No scenarios yet</h3>
               <p className="text-muted-foreground mb-4">
                 Create your first custom scenario to start practicing
@@ -186,9 +186,9 @@ const Index = () => {
                 return (
                   <div
                     key={scenario.id}
-                    className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth"
                   >
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                       <IconComponent className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ const Index = () => {
       </Card>
 
       {/* Pre-built Scenarios Section */}
-      <Card>
+      <Card className="hover:shadow-glass-lg transition-smooth">
         <CardHeader>
           <CardTitle>Pre-built Scenarios</CardTitle>
           <CardDescription>Ready-to-use practice sessions organized by category</CardDescription>
@@ -230,7 +230,7 @@ const Index = () => {
             <AccordionItem value="work">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
+                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                     <Briefcase className="h-5 w-5 text-primary" />
                   </div>
                   <div className="text-left">
@@ -247,9 +247,9 @@ const Index = () => {
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent transition-colors text-left"
+                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg bg-accent">
+                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                         <scenario.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -265,7 +265,7 @@ const Index = () => {
             <AccordionItem value="social">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-accent/50">
+                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                     <Users className="h-5 w-5 text-accent-foreground" />
                   </div>
                   <div className="text-left">
@@ -282,9 +282,9 @@ const Index = () => {
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent transition-colors text-left"
+                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg bg-accent">
+                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                         <scenario.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -300,7 +300,7 @@ const Index = () => {
             <AccordionItem value="love">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-destructive/10">
+                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                     <Heart className="h-5 w-5 text-destructive" />
                   </div>
                   <div className="text-left">
@@ -317,9 +317,9 @@ const Index = () => {
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent transition-colors text-left"
+                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg bg-accent">
+                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
                         <scenario.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -336,10 +336,10 @@ const Index = () => {
       </Card>
 
       {/* Freestyle Practice Button */}
-      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+      <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-accent/10 glass-medium backdrop-blur-xl shadow-glass-lg hover:shadow-glass-lg hover:scale-[1.01] transition-smooth">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary/10">
+            <div className="p-3 rounded-xl glass-light backdrop-blur-md glow-primary animate-glow-pulse">
               <Mic className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
@@ -348,7 +348,7 @@ const Index = () => {
                 Start an open practice session with your own prompts and topics
               </p>
             </div>
-            <Button onClick={handleFreestyle} size="lg" className="gap-2">
+            <Button onClick={handleFreestyle} size="lg" className="gap-2 glow-primary">
               <Mic className="h-4 w-4" />
               Start Session
             </Button>
