@@ -280,13 +280,13 @@ const PreparePractice = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pb-6 sm:pb-8">
-        <Button variant="outline" size="lg" className="flex-1 w-full" onClick={() => navigate("/")}>
+        <Button variant="outline" size="lg" className="flex-1 w-full h-14" onClick={() => navigate("/")}>
           Cancel
         </Button>
-        {isScenarioMode ? <Button size="lg" className="flex-1 gap-2 w-full" onClick={handleSaveScenario}>
+        {isScenarioMode ? <Button size="lg" className="flex-1 gap-2 w-full h-14" onClick={handleSaveScenario}>
             <Save className="h-4 w-4" />
             Save Scenario
-          </Button> : <Button size="lg" className="flex-1 gap-2 w-full" onClick={handleStartPractice}>
+          </Button> : <Button size="lg" className="flex-1 gap-2 w-full h-14" onClick={handleStartPractice}>
             <Play className="h-4 w-4" />
             Start Practice
           </Button>}
