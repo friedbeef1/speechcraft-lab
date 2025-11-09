@@ -106,16 +106,16 @@ const History = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-4 sm:px-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">Practice History</h1>
-        <p className="text-muted-foreground text-lg">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Practice History</h1>
+        <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Review your past sessions and track your progress
         </p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
@@ -192,56 +192,110 @@ const History = () => {
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-center">Fluency Score</TableHead>
-                  <TableHead className="text-center">Words</TableHead>
-                  <TableHead className="text-center">Speech Rate</TableHead>
-                  <TableHead className="text-center">Filler Words</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile Card Layout */}
+              <div className="md:hidden space-y-3">
                 {sessions.map((session) => (
-                  <TableRow
+                  <Card
                     key={session.id}
-                    className="cursor-pointer hover:bg-muted/50"
+                    className="cursor-pointer hover:shadow-glass-lg transition-smooth"
                     onClick={() => handleViewSession(session.id)}
                   >
-                    <TableCell className="font-medium">
-                      {format(new Date(session.completedAt), "MMM d, yyyy 'at' h:mm a")}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={getScoreBadgeVariant(session.fluencyScore)}>
-                        {session.fluencyScore}/100
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">{session.wordCount}</TableCell>
-                    <TableCell className="text-center">{session.speechRate} wpm</TableCell>
-                    <TableCell className="text-center">
-                      <span className="text-destructive font-semibold">
-                        {session.fillerWordCount}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewSession(session.id);
-                        }}
-                      >
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-foreground">
+                          {format(new Date(session.completedAt), "MMM d, yyyy")}
+                        </p>
+                        <Badge variant={getScoreBadgeVariant(session.fluencyScore)}>
+                          {session.fluencyScore}/100
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-muted-foreground text-xs">Words</p>
+                          <p className="font-semibold">{session.wordCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Speech Rate</p>
+                          <p className="font-semibold">{session.speechRate} wpm</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Filler Words</p>
+                          <p className="font-semibold text-destructive">{session.fillerWordCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground text-xs">Time</p>
+                          <p className="font-semibold">
+                            {format(new Date(session.completedAt), "h:mm a")}
+                          </p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" className="w-full" onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewSession(session.id);
+                      }}>
                         <Eye className="h-4 w-4 mr-2" />
-                        View
+                        View Details
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-center">Fluency Score</TableHead>
+                      <TableHead className="text-center">Words</TableHead>
+                      <TableHead className="text-center">Speech Rate</TableHead>
+                      <TableHead className="text-center">Filler Words</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((session) => (
+                      <TableRow
+                        key={session.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleViewSession(session.id)}
+                      >
+                        <TableCell className="font-medium">
+                          {format(new Date(session.completedAt), "MMM d, yyyy 'at' h:mm a")}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant={getScoreBadgeVariant(session.fluencyScore)}>
+                            {session.fluencyScore}/100
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">{session.wordCount}</TableCell>
+                        <TableCell className="text-center">{session.speechRate} wpm</TableCell>
+                        <TableCell className="text-center">
+                          <span className="text-destructive font-semibold">
+                            {session.fillerWordCount}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewSession(session.id);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

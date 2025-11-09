@@ -184,7 +184,7 @@ const PracticeSession = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-6 sm:pb-8 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-6 sm:pb-8 px-4 sm:px-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 glass-medium backdrop-blur-md shadow-glass">
@@ -198,7 +198,7 @@ const PracticeSession = () => {
       {/* Prompt Card */}
       <Card className="border-2 border-primary/30 shadow-glass-lg hover:shadow-glass-lg transition-smooth">
         <CardContent className="py-6 px-4 sm:py-8 sm:px-6 lg:py-12 lg:px-8">
-          <p className="text-base sm:text-lg lg:text-2xl text-center leading-relaxed font-medium">
+          <p className="text-base sm:text-lg lg:text-2xl text-center leading-relaxed font-medium break-words">
             {currentPrompt}
           </p>
         </CardContent>
@@ -214,8 +214,8 @@ const PracticeSession = () => {
           size="sm"
         >
           <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Previous</span>
-          <span className="xs:hidden">Prev</span>
+          <span className="hidden sm:inline">Previous</span>
+          <span className="sm:hidden">Prev</span>
         </Button>
         <Button
           variant="outline"
@@ -224,8 +224,8 @@ const PracticeSession = () => {
           className="gap-1 sm:gap-2 text-xs sm:text-sm"
           size="sm"
         >
-          <span className="hidden xs:inline">Next</span>
-          <span className="xs:hidden">Next</span>
+          <span className="hidden sm:inline">Next</span>
+          <span className="sm:hidden">Next</span>
           <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </div>
