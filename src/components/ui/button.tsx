@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glass hover:scale-[1.02] transition-smooth",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-glass",
-        outline: "border border-border glass-medium backdrop-blur-md text-foreground hover:glass-light hover:shadow-glass hover:border-border",
+        outline: "border-2 border-border glass-medium backdrop-blur-md text-foreground hover:glass-light hover:shadow-glass hover:border-primary/50",
         secondary: "glass-medium backdrop-blur-md text-secondary-foreground hover:glass-light hover:shadow-glass",
         ghost: "hover:glass-ultralight hover:backdrop-blur-md",
         link: "text-primary underline-offset-4 hover:underline",

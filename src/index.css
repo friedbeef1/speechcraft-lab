@@ -32,7 +32,7 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 25% 70%;
+    --border: 30 30% 60%;
     --input: 30 30% 82%;
     --ring: 15 85% 60%;
 
@@ -44,20 +44,20 @@ All colors MUST be HSL.
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 45% 92% / 0.5;
     --sidebar-accent-foreground: 25 15% 25%;
-    --sidebar-border: 30 25% 70% / 0.5;
+    --sidebar-border: 30 30% 60% / 0.6;
     --sidebar-ring: 15 85% 60%;
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glass morphism */
-    --glass-light: 25 40% 99% / 0.75;
-    --glass-medium: 25 40% 99% / 0.55;
-    --glass-heavy: 25 40% 99% / 0.85;
-    --glass-ultralight: 25 40% 99% / 0.3;
+    --glass-light: 25 40% 95% / 0.85;
+    --glass-medium: 25 40% 92% / 0.70;
+    --glass-heavy: 25 40% 96% / 0.90;
+    --glass-ultralight: 25 40% 90% / 0.50;
     
     /* Shadows */
-    --shadow-glass: 0 8px 32px 0 rgba(20, 20, 30, 0.25);
-    --shadow-glass-lg: 0 12px 48px 0 rgba(20, 20, 30, 0.35);
+    --shadow-glass: 0 8px 32px 0 rgba(20, 20, 30, 0.35);
+    --shadow-glass-lg: 0 12px 48px 0 rgba(20, 20, 30, 0.45);
     
     /* Glow colors */
     --glow-primary: 15 85% 60% / 0.4;
