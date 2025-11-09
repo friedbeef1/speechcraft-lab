@@ -45,8 +45,8 @@ export function TipCard({ tips }: TipCardProps) {
               <div className="text-xs sm:text-sm space-y-1">
                 {tips.map((tip, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>{tip}</span>
+                    <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                    <span className="break-words flex-1">{tip}</span>
                   </div>
                 ))}
               </div>

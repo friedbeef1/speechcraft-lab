@@ -345,7 +345,7 @@ const SessionResults = () => {
               {analysisData.feedback.delivery.map((point, i) => (
                 <li key={i} className="flex gap-2 text-xs sm:text-sm">
                   <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                  <span>{point}</span>
+                  <span className="break-words">{point}</span>
                 </li>
               ))}
             </ul>
@@ -362,7 +362,7 @@ const SessionResults = () => {
               {analysisData.feedback.content.map((point, i) => (
                 <li key={i} className="flex gap-2 text-xs sm:text-sm">
                   <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
-                  <span>{point}</span>
+                  <span className="break-words">{point}</span>
                 </li>
               ))}
             </ul>
@@ -408,7 +408,7 @@ const SessionResults = () => {
             <CardDescription className="text-xs sm:text-sm">The prompt you responded to</CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
-            <p className="text-sm sm:text-base lg:text-lg leading-relaxed">{recordingData.prompt}</p>
+            <p className="text-sm sm:text-base lg:text-lg leading-relaxed break-words">{recordingData.prompt}</p>
           </CardContent>
         </Card>
       )}

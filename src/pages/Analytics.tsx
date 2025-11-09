@@ -55,7 +55,7 @@ const Analytics = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-3xl font-bold text-foreground mt-1">{stat.value}</p>
+                    <p className="text-3xl font-bold text-foreground mt-1 break-words">{stat.value}</p>
                     <p className="text-sm text-primary mt-1">{stat.change}</p>
                   </div>
                   <div className="p-3 rounded-lg glass-light">

@@ -203,7 +203,7 @@ const History = () => {
                   >
                     <CardContent className="p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-medium text-foreground break-words">
                           {format(new Date(session.completedAt), "MMM d, yyyy")}
                         </p>
                         <Badge variant={getScoreBadgeVariant(session.fluencyScore)}>
@@ -262,7 +262,7 @@ const History = () => {
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => handleViewSession(session.id)}
                       >
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium break-words min-w-[180px]">
                           {format(new Date(session.completedAt), "MMM d, yyyy 'at' h:mm a")}
                         </TableCell>
                         <TableCell className="text-center">

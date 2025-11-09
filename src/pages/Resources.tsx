@@ -110,7 +110,7 @@ const Resources = () => {
                     <div className="p-3 rounded-lg glass-light w-fit mb-4">
                       <tip.icon className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-foreground">{tip.title}</CardTitle>
+                    <CardTitle className="text-foreground break-words">{tip.title}</CardTitle>
                     <CardDescription>{tip.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -132,7 +132,7 @@ const Resources = () => {
                     <div className="p-3 rounded-lg glass-light w-fit mb-4">
                       <guide.icon className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-foreground">{guide.title}</CardTitle>
+                    <CardTitle className="text-foreground break-words">{guide.title}</CardTitle>
                     <CardDescription>{guide.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -154,7 +154,7 @@ const Resources = () => {
                     <div className="p-3 rounded-lg glass-light w-fit mb-4">
                       <article.icon className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-foreground">{article.title}</CardTitle>
+                    <CardTitle className="text-foreground break-words">{article.title}</CardTitle>
                     <CardDescription>{article.description}</CardDescription>
                   </CardHeader>
                   <CardContent>

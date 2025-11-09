@@ -284,18 +284,18 @@ const PreparePractice = () => {
                 <Select value={selectedIcon} onValueChange={setSelectedIcon}>
                   <SelectTrigger id="icon">
                     <SelectValue>
-                      <div className="flex items-center gap-2">
-                        <SelectedIconComponent className="h-4 w-4" />
-                        <span>{iconOptions.find(opt => opt.value === selectedIcon)?.label}</span>
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <SelectedIconComponent className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{iconOptions.find(opt => opt.value === selectedIcon)?.label}</span>
                       </div>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {iconOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        <div className="flex items-center gap-2">
-                          <option.icon className="h-4 w-4" />
-                          <span>{option.label}</span>
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <option.icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{option.label}</span>
                         </div>
                       </SelectItem>
                     ))}
