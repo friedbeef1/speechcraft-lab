@@ -98,28 +98,28 @@ function SortablePromptItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-2 group animate-fade-in"
+      className="flex items-start gap-1 sm:gap-2 group animate-fade-in"
     >
       <button
-        className="mt-2 cursor-grab active:cursor-grabbing p-2 hover:bg-accent rounded-md transition-colors"
+        className="mt-2 cursor-grab active:cursor-grabbing p-1 sm:p-2 hover:bg-accent rounded-md transition-colors flex-shrink-0"
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <GripVertical className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
       </button>
       <Textarea
         value={prompt.text}
         onChange={(e) => onUpdate(prompt.id, e.target.value)}
         placeholder="Enter a speaking prompt..."
-        className="flex-1 min-h-[80px] resize-none"
+        className="flex-1 min-h-[80px] resize-none text-sm sm:text-base"
       />
       <Button
         variant="ghost"
         size="icon"
         onClick={() => onDelete(prompt.id)}
-        className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="mt-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
       >
-        <Trash2 className="h-4 w-4 text-destructive" />
+        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
       </Button>
     </div>
   );
@@ -249,12 +249,12 @@ const PreparePractice = () => {
   const SelectedIconComponent = iconOptions.find(opt => opt.value === selectedIcon)?.icon || Mic;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 p-4 md:p-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
           {isScenarioMode ? "Create Scenario" : "Freestyle Practice"}
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-base md:text-lg">
           {isScenarioMode
             ? "Design a custom practice scenario with prompts and details"
             : "Set up your practice session with custom prompts"}
@@ -320,7 +320,7 @@ const PreparePractice = () => {
       {/* Prompts Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4">
             <div>
               <CardTitle>Practice Prompts</CardTitle>
               <CardDescription>
@@ -328,12 +328,12 @@ const PreparePractice = () => {
               </CardDescription>
             </div>
             {!isScenarioMode && (
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => fillWithInspiration("world")}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   <Globe className="h-4 w-4" />
                   World News
@@ -342,7 +342,7 @@ const PreparePractice = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => fillWithInspiration("local")}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   <MapPin className="h-4 w-4" />
                   Local News
@@ -386,11 +386,11 @@ const PreparePractice = () => {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 pb-8">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pb-6 sm:pb-8">
         <Button
           variant="outline"
           size="lg"
-          className="flex-1"
+          className="flex-1 w-full"
           onClick={() => navigate("/")}
         >
           Cancel
@@ -398,7 +398,7 @@ const PreparePractice = () => {
         {isScenarioMode ? (
           <Button
             size="lg"
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 w-full"
             onClick={handleSaveScenario}
           >
             <Save className="h-4 w-4" />
@@ -407,7 +407,7 @@ const PreparePractice = () => {
         ) : (
           <Button
             size="lg"
-            className="flex-1 gap-2"
+            className="flex-1 gap-2 w-full"
             onClick={handleStartPractice}
           >
             <Play className="h-4 w-4" />
