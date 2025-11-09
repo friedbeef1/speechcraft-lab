@@ -1,4 +1,4 @@
-import { Home, Mic, BarChart3, Settings, BookOpen, History } from "lucide-react";
+import { Home, Mic, BarChart3, Settings, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -14,7 +14,6 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "History", url: "/history", icon: History },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Resources", url: "/resources", icon: BookOpen },
   { title: "Settings", url: "/settings", icon: Settings },

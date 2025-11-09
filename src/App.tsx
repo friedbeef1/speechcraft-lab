@@ -10,8 +10,6 @@ import Index from "./pages/Index";
 import PreparePractice from "./pages/PreparePractice";
 import PracticeSession from "./pages/PracticeSession";
 import SessionResults from "./pages/SessionResults";
-import History from "./pages/History";
-
 import Analytics from "./pages/Analytics";
 import Resources from "./pages/Resources";
 import Settings from "./pages/Settings";
@@ -33,7 +31,6 @@ const App = () => (
               <Route path="/prepare" element={<PreparePractice />} />
               <Route path="/session" element={<PracticeSession />} />
               <Route path="/results" element={<SessionResults />} />
-              <Route path="/history" element={<History />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/settings" element={<Settings />} />

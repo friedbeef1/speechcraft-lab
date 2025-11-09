@@ -41,11 +41,6 @@ const tutorialSteps = [
     description: "After recording, our AI analyzes your speech and provides personalized feedback on delivery, content, fluency, and more. Track your progress over time!",
     image: "📊",
   },
-  {
-    title: "View Your History",
-    description: "Access all your past practice sessions from the History page in the sidebar. Review your progress and see how you've improved!",
-    image: "📚",
-  },
 ];
 
 export function OnboardingTutorial({ onComplete }: OnboardingTutorialProps) {
