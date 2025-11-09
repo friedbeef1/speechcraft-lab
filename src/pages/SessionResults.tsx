@@ -269,82 +269,82 @@ const SessionResults = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-8 animate-fade-in">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 pb-6 sm:pb-8 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2 glass-ultralight backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2 glass-ultralight backdrop-blur-md text-sm">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Button>
-        <Badge variant="secondary" className="text-lg px-4 py-2 glass-medium backdrop-blur-md shadow-glass">
-          <CheckCircle2 className="h-4 w-4 mr-2" />
+        <Badge variant="secondary" className="text-xs sm:text-sm lg:text-base px-3 sm:px-4 py-1.5 sm:py-2 glass-medium backdrop-blur-md shadow-glass">
+          <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
           Analysis Complete
         </Badge>
       </div>
 
-      <h1 className="text-4xl font-bold">Session Results</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Session Results</h1>
 
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
         <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fluency Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Fluency</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analysisData.metrics.fluencyScore}/100</div>
+          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.fluencyScore}/100</div>
             <Progress value={analysisData.metrics.fluencyScore} className="mt-2" />
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Word Count</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Words</CardTitle>
+            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analysisData.metrics.wordCount}</div>
-            <p className="text-xs text-muted-foreground mt-2">Total words spoken</p>
+          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.wordCount}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Total spoken</p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Speech Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Rate</CardTitle>
+            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analysisData.metrics.speechRate}</div>
-            <p className="text-xs text-muted-foreground mt-2">Words per minute</p>
+          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{analysisData.metrics.speechRate}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">WPM</p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-glass-lg hover:scale-[1.02] transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Filler Words</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Fillers</CardTitle>
+            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-500">
+          <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-500">
               {analysisData.metrics.fillerWordCount}
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Um, uh, like, you know</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 sm:mt-2">Um, uh, like</p>
           </CardContent>
         </Card>
       </div>
 
       {/* AI Feedback */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader>
-            <CardTitle>Delivery Feedback</CardTitle>
-            <CardDescription>Pace, tone, and speaking style</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg lg:text-xl">Delivery Feedback</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Pace, tone, and speaking style</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <ul className="space-y-2 sm:space-y-3">
               {analysisData.feedback.delivery.map((point, i) => (
-                <li key={i} className="flex gap-2 text-sm">
-                  <span className="text-primary mt-1">•</span>
+                <li key={i} className="flex gap-2 text-xs sm:text-sm">
+                  <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -353,15 +353,15 @@ const SessionResults = () => {
         </Card>
 
         <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader>
-            <CardTitle>Content Feedback</CardTitle>
-            <CardDescription>Clarity, structure, and engagement</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg lg:text-xl">Content Feedback</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Clarity, structure, and engagement</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <ul className="space-y-2 sm:space-y-3">
               {analysisData.feedback.content.map((point, i) => (
-                <li key={i} className="flex gap-2 text-sm">
-                  <span className="text-primary mt-1">•</span>
+                <li key={i} className="flex gap-2 text-xs sm:text-sm">
+                  <span className="text-primary mt-0.5 sm:mt-1 flex-shrink-0">•</span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -372,12 +372,12 @@ const SessionResults = () => {
 
       {/* Vocal Variation Chart */}
       <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader>
-          <CardTitle>Vocal Variation</CardTitle>
-          <CardDescription>Pitch and volume throughout your speech</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg lg:text-xl">Vocal Variation</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Pitch and volume throughout your speech</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] lg:!h-[300px]">
             <AreaChart data={recordingData ? getVocalData(recordingData.duration) : []}>
               <defs>
                 <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
@@ -390,8 +390,8 @@ const SessionResults = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" label={{ value: 'Time (seconds)', position: 'insideBottom', offset: -5 }} />
-              <YAxis label={{ value: 'Level', angle: -90, position: 'insideLeft' }} />
+              <XAxis dataKey="time" label={{ value: 'Time (seconds)', position: 'insideBottom', offset: -5 }} tick={{ fontSize: 12 }} />
+              <YAxis label={{ value: 'Level', angle: -90, position: 'insideLeft' }} tick={{ fontSize: 12 }} />
               <Tooltip />
               <Area type="monotone" dataKey="pitch" stroke="hsl(217, 91%, 60%)" fillOpacity={1} fill="url(#colorPitch)" name="Pitch" />
               <Area type="monotone" dataKey="volume" stroke="hsl(173, 80%, 40%)" fillOpacity={1} fill="url(#colorVolume)" name="Volume" />
@@ -403,25 +403,25 @@ const SessionResults = () => {
       {/* Prompt Display */}
       {recordingData && (
         <Card className="hover:shadow-glass-lg transition-smooth">
-          <CardHeader>
-            <CardTitle>Practice Prompt</CardTitle>
-            <CardDescription>The prompt you responded to</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg lg:text-xl">Practice Prompt</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">The prompt you responded to</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-lg leading-relaxed">{recordingData.prompt}</p>
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <p className="text-sm sm:text-base lg:text-lg leading-relaxed">{recordingData.prompt}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Full Transcript and Recording */}
       <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader>
-          <CardTitle>Full Recording & Transcript</CardTitle>
-          <CardDescription>Complete audio and text from your session</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg lg:text-xl">Full Recording & Transcript</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Complete audio and text from your session</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
           {audioUrl && (
-            <div className="p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
+            <div className="p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
               <audio controls className="w-full">
                 <source src={audioUrl} type="audio/webm" />
                 Your browser does not support the audio element.
@@ -430,9 +430,9 @@ const SessionResults = () => {
           )}
           
           <div className="space-y-2">
-            <p className="text-sm font-medium">Transcript (filler words highlighted):</p>
+            <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
             <div 
-              className="text-sm leading-relaxed p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass"
+              className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] sm:max-h-[400px] overflow-y-auto"
               dangerouslySetInnerHTML={{ __html: highlightFillerWords(recordingData?.transcript || '') }}
             />
           </div>
@@ -440,11 +440,11 @@ const SessionResults = () => {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
-        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1 glow-primary">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1 glow-primary text-sm sm:text-base">
           Practice Again
         </Button>
-        <Button size="lg" variant="outline" onClick={exportToPDF} className="flex-1 gap-2">
+        <Button size="lg" variant="outline" onClick={exportToPDF} className="flex-1 gap-2 text-sm sm:text-base">
           <Download className="h-4 w-4" />
           Export as PDF
         </Button>

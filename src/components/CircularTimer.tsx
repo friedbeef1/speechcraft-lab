@@ -43,24 +43,24 @@ export function CircularTimer({ seconds, isActive, onComplete }: CircularTimerPr
 
   return (
     <div className="relative inline-flex items-center justify-center">
-      <svg className="transform -rotate-90 w-32 h-32 drop-shadow-lg">
+      <svg className="transform -rotate-90 w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 drop-shadow-lg">
         {/* Background circle */}
         <circle
-          cx="64"
-          cy="64"
+          cx="50%"
+          cy="50%"
           r={radius}
           stroke="currentColor"
-          strokeWidth="8"
+          strokeWidth="6"
           fill="none"
           className="text-muted/30"
         />
         {/* Progress circle */}
         <circle
-          cx="64"
-          cy="64"
+          cx="50%"
+          cy="50%"
           r={radius}
           stroke="currentColor"
-          strokeWidth="8"
+          strokeWidth="6"
           fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -69,7 +69,7 @@ export function CircularTimer({ seconds, isActive, onComplete }: CircularTimerPr
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold drop-shadow-md">{timeLeft}s</span>
+        <span className="text-lg sm:text-xl lg:text-2xl font-bold drop-shadow-md">{timeLeft}s</span>
       </div>
     </div>
   );

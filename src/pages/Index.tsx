@@ -144,37 +144,37 @@ const Index = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Practice Scenarios</h1>
-        <p className="text-muted-foreground text-lg">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Practice Scenarios</h1>
+        <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
       </div>
 
       {/* Your Scenarios Section */}
       <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <CardTitle>Your Scenarios</CardTitle>
-              <CardDescription>Custom scenarios you've created</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Your Scenarios</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Custom scenarios you've created</CardDescription>
             </div>
-            <Button onClick={handleCreateNew} className="gap-2 glow-primary">
+            <Button onClick={handleCreateNew} className="gap-2 glow-primary w-full sm:w-auto text-sm">
               <Plus className="h-4 w-4" />
               Create New
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {userScenarios.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-border/50 rounded-lg glass-ultralight backdrop-blur-md">
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-float" />
-              <h3 className="text-lg font-semibold mb-2">No scenarios yet</h3>
-              <p className="text-muted-foreground mb-4">
+            <div className="text-center py-8 sm:py-12 border-2 border-dashed border-border/50 rounded-lg glass-ultralight backdrop-blur-md px-3">
+              <Sparkles className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4 animate-float" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2">No scenarios yet</h3>
+              <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">
                 Create your first custom scenario to start practicing
               </p>
-              <Button onClick={handleCreateNew} variant="outline" className="gap-2">
+              <Button onClick={handleCreateNew} variant="outline" className="gap-2 text-sm">
                 <Plus className="h-4 w-4" />
                 Create Your First Scenario
               </Button>
@@ -186,29 +186,31 @@ const Index = () => {
                 return (
                   <div
                     key={scenario.id}
-                    className="flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth"
+                    className="flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth"
                   >
-                    <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                      <IconComponent className="h-5 w-5 text-primary" />
+                    <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                      <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold mb-1">{scenario.title}</h4>
-                      <p className="text-sm text-muted-foreground">{scenario.description}</p>
+                      <h4 className="font-semibold mb-1 text-sm sm:text-base">{scenario.title}</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 flex-shrink-0">
                       <Button
-                        size="sm"
+                        size="icon"
                         variant="ghost"
                         onClick={() => handleEdit(scenario.id)}
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                       <Button
-                        size="sm"
+                        size="icon"
                         variant="ghost"
                         onClick={() => handleDelete(scenario.id)}
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
                   </div>
@@ -221,40 +223,40 @@ const Index = () => {
 
       {/* Pre-built Scenarios Section */}
       <Card className="hover:shadow-glass-lg transition-smooth">
-        <CardHeader>
-          <CardTitle>Pre-built Scenarios</CardTitle>
-          <CardDescription>Ready-to-use practice sessions organized by category</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Pre-built Scenarios</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Ready-to-use practice sessions organized by category</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="work">
-              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                    <Briefcase className="h-5 w-5 text-primary" />
+              <AccordionTrigger className="hover:no-underline py-3 sm:py-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Work</div>
-                    <div className="text-sm text-muted-foreground">
+                  <div className="text-left min-w-0 flex-1">
+                    <div className="font-semibold text-sm sm:text-base">Work</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
                       Professional communication scenarios
                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-2 pt-4">
+                <div className="space-y-2 pt-2 sm:pt-4">
                   {prebuiltScenarios.work.map((scenario) => (
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
+                      className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                        <scenario.icon className="h-5 w-5" />
+                      <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                        <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold mb-1">{scenario.title}</h4>
-                        <p className="text-sm text-muted-foreground">{scenario.description}</p>
+                        <h4 className="font-semibold mb-1 text-sm sm:text-base">{scenario.title}</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                       </div>
                     </button>
                   ))}
@@ -263,33 +265,33 @@ const Index = () => {
             </AccordionItem>
 
             <AccordionItem value="social">
-              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                    <Users className="h-5 w-5 text-accent-foreground" />
+              <AccordionTrigger className="hover:no-underline py-3 sm:py-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-accent-foreground" />
                   </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Social</div>
-                    <div className="text-sm text-muted-foreground">
+                  <div className="text-left min-w-0 flex-1">
+                    <div className="font-semibold text-sm sm:text-base">Social</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
                       Everyday social interactions
                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-2 pt-4">
+                <div className="space-y-2 pt-2 sm:pt-4">
                   {prebuiltScenarios.social.map((scenario) => (
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
+                      className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                        <scenario.icon className="h-5 w-5" />
+                      <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                        <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold mb-1">{scenario.title}</h4>
-                        <p className="text-sm text-muted-foreground">{scenario.description}</p>
+                        <h4 className="font-semibold mb-1 text-sm sm:text-base">{scenario.title}</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                       </div>
                     </button>
                   ))}
@@ -298,33 +300,33 @@ const Index = () => {
             </AccordionItem>
 
             <AccordionItem value="love">
-              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                    <Heart className="h-5 w-5 text-destructive" />
+              <AccordionTrigger className="hover:no-underline py-3 sm:py-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
                   </div>
-                  <div className="text-left">
-                    <div className="font-semibold">Love</div>
-                    <div className="text-sm text-muted-foreground">
+                  <div className="text-left min-w-0 flex-1">
+                    <div className="font-semibold text-sm sm:text-base">Love</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
                       Romantic and personal relationships
                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-2 pt-4">
+                <div className="space-y-2 pt-2 sm:pt-4">
                   {prebuiltScenarios.love.map((scenario) => (
                     <button
                       key={scenario.id}
                       onClick={() => handleStartScenario(scenario.title)}
-                      className="w-full flex items-start gap-4 p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
+                      className="w-full flex items-start gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border border-border/50 glass-ultralight backdrop-blur-md hover:glass-light hover:shadow-glass transition-smooth text-left hover:scale-[1.01]"
                     >
-                      <div className="p-2 rounded-lg glass-medium backdrop-blur-md">
-                        <scenario.icon className="h-5 w-5" />
+                      <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
+                        <scenario.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold mb-1">{scenario.title}</h4>
-                        <p className="text-sm text-muted-foreground">{scenario.description}</p>
+                        <h4 className="font-semibold mb-1 text-sm sm:text-base">{scenario.title}</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{scenario.description}</p>
                       </div>
                     </button>
                   ))}
@@ -337,18 +339,18 @@ const Index = () => {
 
       {/* Freestyle Practice Button */}
       <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-accent/10 glass-medium backdrop-blur-xl shadow-glass-lg hover:shadow-glass-lg hover:scale-[1.01] transition-smooth">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl glass-light backdrop-blur-md glow-primary animate-glow-pulse">
-              <Mic className="h-6 w-6 text-primary" />
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 rounded-xl glass-light backdrop-blur-md glow-primary animate-glow-pulse flex-shrink-0">
+              <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg mb-1">Freestyle Practice</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base sm:text-lg mb-1">Freestyle Practice</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Start an open practice session with your own prompts and topics
               </p>
             </div>
-            <Button onClick={handleFreestyle} size="lg" className="gap-2 glow-primary">
+            <Button onClick={handleFreestyle} size="lg" className="gap-2 glow-primary w-full sm:w-auto text-sm sm:text-base">
               <Mic className="h-4 w-4" />
               Start Session
             </Button>

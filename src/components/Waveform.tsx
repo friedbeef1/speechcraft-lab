@@ -86,12 +86,12 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
         ref={canvasRef}
         width={800}
         height={120}
-        className="w-full h-[120px] rounded-lg transition-all duration-200"
+        className="w-full h-[80px] sm:h-[100px] lg:h-[120px] rounded-lg transition-all duration-200"
       />
       {fillerWordFlash && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-white font-bold text-lg glass-heavy backdrop-blur-xl px-6 py-3 rounded-full animate-scale-in shadow-glass-lg">
-            Filler word detected!
+          <span className="text-white font-bold text-xs sm:text-sm lg:text-base glass-heavy backdrop-blur-xl px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full animate-scale-in shadow-glass-lg">
+            Filler word!
           </span>
         </div>
       )}
