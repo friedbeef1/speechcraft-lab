@@ -15,7 +15,7 @@ import {
   UserCheck,
   Coffee,
   MessageSquare,
-  Sparkles
+  Pencil
 } from "lucide-react";
 import {
   Accordion,
@@ -169,7 +169,7 @@ const Index = () => {
         <CardContent className="p-4 sm:p-6">
           {userScenarios.length === 0 ? (
             <div className="text-center py-8 sm:py-12 border-2 border-dashed border-border/50 rounded-lg glass-ultralight backdrop-blur-md px-3">
-              <Sparkles className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4 animate-float" />
+              <Pencil className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4 animate-float" />
               <h3 className="text-base sm:text-lg font-semibold mb-2">No scenarios yet</h3>
               <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">
                 Create your first custom scenario to start practicing

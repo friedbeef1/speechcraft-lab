@@ -9,7 +9,7 @@ import {
   Plus,
   Trash2,
   GripVertical,
-  Sparkles,
+  Pencil,
   Globe,
   MapPin,
   Save,
