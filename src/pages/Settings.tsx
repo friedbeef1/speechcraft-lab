@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { User, Bell, Shield, Database } from "lucide-react";
-
 const Settings = () => {
-  return (
-    <div className="min-h-screen p-6 md:p-8">
+  return <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -193,14 +191,12 @@ const Settings = () => {
         <Card className="glass-medium shadow-glass">
           <CardContent className="pt-6">
             <div className="text-center text-sm text-muted-foreground">
-              <p>Speech Coach v1.0.0</p>
+              <p>Speech Coach v4.7.1</p>
               <p className="mt-1">© 2025 All rights reserved</p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Settings;
