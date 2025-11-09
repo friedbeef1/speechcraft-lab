@@ -11,18 +11,18 @@ export function TipCard({ tips }: TipCardProps) {
 
   return (
     <div
-      className="perspective-1000 cursor-pointer"
+      className="perspective-1000 cursor-pointer min-h-fit"
       onClick={() => setIsFlipped(!isFlipped)}
     >
       <div
-        className={`relative w-full transition-transform duration-500 transform-style-3d ${
+        className={`relative w-full min-h-fit transition-transform duration-500 transform-style-3d ${
           isFlipped ? "rotate-y-180" : ""
         }`}
       >
         {/* Front of card */}
         <Card
           className={`backface-hidden shadow-glass hover:shadow-glass-lg transition-smooth ${
-            isFlipped ? "invisible" : "visible"
+            isFlipped ? "invisible absolute inset-0" : "visible"
           }`}
         >
           <CardContent className="flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-6 px-3 sm:px-6">
@@ -35,18 +35,18 @@ export function TipCard({ tips }: TipCardProps) {
 
         {/* Back of card */}
         <Card
-          className={`absolute inset-0 backface-hidden rotate-y-180 shadow-glass-lg ${
-            isFlipped ? "visible" : "invisible"
+          className={`backface-hidden rotate-y-180 shadow-glass-lg ${
+            isFlipped ? "visible" : "invisible absolute inset-0"
           }`}
         >
-          <CardContent className="py-6 sm:py-8 px-4 sm:px-8">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
-              <div className="text-xs sm:text-sm space-y-2 sm:space-y-3">
+          <CardContent className="py-4 sm:py-6 px-3 sm:px-6">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
+              <div className="text-xs sm:text-sm space-y-2">
                 {tips.map((tip, index) => (
                   <div key={index} className="flex items-start gap-2">
                     <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-                    <span className="break-words flex-1 leading-relaxed">{tip}</span>
+                    <span className="break-words flex-1">{tip}</span>
                   </div>
                 ))}
               </div>
