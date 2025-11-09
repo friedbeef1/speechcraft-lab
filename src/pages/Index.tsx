@@ -261,9 +261,7 @@ const Index = () => {
   return <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Let's talk about the environment</h1>
-        <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
-          Choose a scenario to practice or create your own custom session
-        </p>
+        <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Choose a scenario to practice talking about this tough subject or create your own custom session</p>
         {!user && isGuest && <div className="p-4 glass-light rounded-lg border border-border/50">
             <p className="text-sm text-muted-foreground mb-2">
               💡 <strong>Sign up</strong> to save your practice sessions and track your progress over time!
