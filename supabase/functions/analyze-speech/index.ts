@@ -18,7 +18,11 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Analyzing speech:', { transcript, duration, fillerWordCount });
+    console.log('Analyzing speech:', { 
+      transcriptLength: transcript.length, 
+      duration, 
+      fillerWordCount 
+    });
 
     // Calculate basic metrics
     const words = transcript.trim().split(/\s+/);

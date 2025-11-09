@@ -76,13 +76,27 @@ const SessionResults = () => {
     }));
   };
 
-  const highlightFillerWords = (text: string) => {
-    let highlighted = text;
-    fillerWords.forEach(word => {
-      const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      highlighted = highlighted.replace(regex, `<mark class="bg-destructive/20 text-foreground px-1 rounded">$&</mark>`);
+  const renderTranscript = (text: string) => {
+    if (!text) return null;
+    
+    const words = text.split(/(\s+)/);
+    
+    return words.map((word, i) => {
+      const cleanWord = word.toLowerCase().trim();
+      const isFillerWord = fillerWords.includes(cleanWord);
+      
+      if (isFillerWord) {
+        return (
+          <mark 
+            key={i} 
+            className="bg-destructive/20 text-foreground px-1 rounded"
+          >
+            {word}
+          </mark>
+        );
+      }
+      return <span key={i}>{word}</span>;
     });
-    return highlighted;
   };
 
   useEffect(() => {
@@ -485,10 +499,9 @@ const SessionResults = () => {
           
           <div className="space-y-2">
             <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
-            <div 
-              className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] sm:max-h-[400px] overflow-y-auto"
-              dangerouslySetInnerHTML={{ __html: highlightFillerWords(recordingData?.transcript || '') }}
-            />
+            <div className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] sm:max-h-[400px] overflow-y-auto">
+              {renderTranscript(recordingData?.transcript || '')}
+            </div>
           </div>
         </CardContent>
       </Card>
