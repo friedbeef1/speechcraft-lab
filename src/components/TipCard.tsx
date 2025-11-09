@@ -26,7 +26,7 @@ export function TipCard({ tips }: TipCardProps) {
           }`}
         >
           <CardContent className="flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-6 px-3 sm:px-6">
-            <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary animate-float flex-shrink-0" />
+            <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
             <span className="text-xs sm:text-sm text-muted-foreground">
               Need a hint? Click here
             </span>
@@ -41,7 +41,7 @@ export function TipCard({ tips }: TipCardProps) {
         >
           <CardContent className="py-4 sm:py-6 px-3 sm:px-6">
             <div className="flex items-start gap-2 sm:gap-3">
-              <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
+              <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1 transition-none" />
               <div className="text-xs sm:text-sm space-y-2">
                 {tips.map((tip, index) => (
                   <div key={index} className="flex items-start gap-2">
