@@ -263,8 +263,7 @@ const Index = () => {
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Let's talk about the environment</h1>
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Choose a scenario to practice talking about this tough subject or create your own custom session</p>
         {!user && isGuest && <div className="p-4 glass-light rounded-lg border border-border/50">
-            <p className="text-sm text-muted-foreground mb-2">
-              💡 <strong>Sign up</strong> to save your practice sessions and track your progress over time!
+            <p className="text-sm text-muted-foreground mb-2">💡 Sign up to save your practice sessions and track your progress over time! Guest only get 3 cards per hour processing.<strong>Sign up</strong> to save your practice sessions and track your progress over time!
             </p>
             <Button onClick={() => navigate("/auth")} size="sm" variant="outline">
               Sign Up / Sign In
