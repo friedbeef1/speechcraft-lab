@@ -3,13 +3,11 @@ import { useEffect, useRef, useState } from "react";
 interface WaveformProps {
   analyser: AnalyserNode | null;
   isRecording: boolean;
-  onFillerWord?: () => void;
 }
 
-export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps) {
+export function Waveform({ analyser, isRecording }: WaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const [fillerWordFlash, setFillerWordFlash] = useState(false);
 
   useEffect(() => {
     if (!analyser || !canvasRef.current || !isRecording) return;
@@ -20,16 +18,6 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-
-    // Simulate filler word detection (random flashes for demo)
-    // In production, you'd use actual speech-to-text analysis
-    const fillerWordInterval = setInterval(() => {
-      if (Math.random() < 0.1) { // 10% chance per interval
-        setFillerWordFlash(true);
-        onFillerWord?.();
-        setTimeout(() => setFillerWordFlash(false), 200);
-      }
-    }, 2000);
 
     const draw = () => {
       if (!ctx || !canvas) return;
@@ -42,9 +30,7 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
       const height = canvas.height;
 
       // Get CSS custom properties for theme colors
-      const bgColor = fillerWordFlash 
-        ? getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
-        : getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+      const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
       const strokeColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-foreground').trim();
 
       // Clear canvas
@@ -82,9 +68,8 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      clearInterval(fillerWordInterval);
     };
-  }, [analyser, isRecording, fillerWordFlash, onFillerWord]);
+  }, [analyser, isRecording]);
 
   return (
     <div className="relative w-full glass-medium backdrop-blur-xl rounded-2xl p-2 shadow-glass-lg">
@@ -94,13 +79,6 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
         height={120}
         className="w-full h-[80px] sm:h-[100px] lg:h-[120px] rounded-lg transition-all duration-200"
       />
-      {fillerWordFlash && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-primary-foreground font-bold text-xs sm:text-sm lg:text-base glass-heavy backdrop-blur-xl px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full animate-scale-in shadow-glass-lg">
-            Filler word!
-          </span>
-        </div>
-      )}
     </div>
   );
 }

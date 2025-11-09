@@ -458,7 +458,6 @@ const PracticeSession = () => {
           <Waveform
             analyser={analyser}
             isRecording={isRecording}
-            onFillerWord={handleFillerWord}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
