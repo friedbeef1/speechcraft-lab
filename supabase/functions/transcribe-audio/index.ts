@@ -26,11 +26,10 @@ const validateAudioInput = (audio: unknown): { valid: boolean; error?: string } 
   return { valid: true };
 };
 
-// Rate limiting check
+// User-based rate limiting check
 const checkRateLimit = async (
   supabase: any,
-  identifier: string,
-  identifierType: 'user' | 'ip',
+  userId: string,
   endpoint: string
 ): Promise<{ allowed: boolean; error?: string }> => {
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -39,31 +38,38 @@ const checkRateLimit = async (
   const { data, error } = await supabase
     .from('rate_limits')
     .select('id', { count: 'exact' })
-    .eq('identifier', identifier)
+    .eq('identifier', userId)
+    .eq('identifier_type', 'user')
     .eq('endpoint', endpoint)
     .gte('requested_at', hourAgo);
   
   if (error) {
     console.error('Rate limit check error:', error);
-    return { allowed: true }; // Fail open to avoid blocking users on DB issues
+    return { allowed: false, error: 'Rate limit check failed' };
   }
   
   const requestCount = data?.length || 0;
-  const limit = identifierType === 'user' ? 20 : 3; // 20/hr for users, 3/hr for guests
+  const limit = 20; // 20 requests per hour for authenticated users
   
   if (requestCount >= limit) {
+    console.warn('Rate limit exceeded', { userId, endpoint, requestCount });
     return {
       allowed: false,
-      error: `Rate limit exceeded. ${identifierType === 'user' ? 'Authenticated users' : 'Guest users'} can make ${limit} requests per hour.`
+      error: `Rate limit exceeded. You can make ${limit} requests per hour.`
     };
   }
   
   // Log this request
-  await supabase.from('rate_limits').insert({
-    identifier,
-    identifier_type: identifierType,
+  const { error: insertError } = await supabase.from('rate_limits').insert({
+    identifier: userId,
+    identifier_type: 'user',
     endpoint,
   });
+
+  if (insertError) {
+    console.error('Rate limit insert error:', insertError);
+    return { allowed: false, error: 'Rate limit tracking failed' };
+  }
   
   return { allowed: true };
 };
@@ -87,36 +93,33 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    // Conditional authentication and rate limiting
+    // Require authentication
     const authHeader = req.headers.get('authorization');
-    let userId: string | null = null;
-    let identifier: string;
-    let identifierType: 'user' | 'ip';
-    
-    if (authHeader) {
-      // Authenticated user
-      const jwt = authHeader.replace('Bearer ', '');
-      const { data: { user }, error } = await supabase.auth.getUser(jwt);
-      
-      if (user && !error) {
-        userId = user.id;
-        identifier = userId;
-        identifierType = 'user';
-      } else {
-        // Invalid token, treat as guest
-        const forwarded = req.headers.get('x-forwarded-for');
-        identifier = forwarded ? forwarded.split(',')[0] : 'unknown';
-        identifierType = 'ip';
-      }
-    } else {
-      // Guest user - use IP address
-      const forwarded = req.headers.get('x-forwarded-for');
-      identifier = forwarded ? forwarded.split(',')[0] : 'unknown';
-      identifierType = 'ip';
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    // Check rate limit
-    const rateLimitResult = await checkRateLimit(supabase, identifier, identifierType, 'transcribe-audio');
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Check user-based rate limit
+    const rateLimitResult = await checkRateLimit(supabase, user.id, 'transcribe-audio');
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify({ error: rateLimitResult.error }),
@@ -137,8 +140,7 @@ serve(async (req) => {
     }
 
     console.log('Starting transcription:', {
-      identifierType,
-      identifier: identifierType === 'user' ? userId : 'guest',
+      userId: user.id,
       audioSize: audio.length,
     });
 
@@ -232,7 +234,7 @@ serve(async (req) => {
     });
 
     console.log('Transcription complete:', {
-      userId: userId || 'guest',
+      userId: user.id,
       wordCount: transcript.words?.length || 0,
       fillerWordCount,
       duration: transcript.audio_duration
