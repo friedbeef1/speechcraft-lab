@@ -508,11 +508,11 @@ const SessionResults = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1 glow-primary text-sm sm:text-base">
+        <Button size="lg" onClick={() => navigate("/prepare?mode=freestyle")} className="flex-1 glow-primary h-16 text-lg">
           Practice Again
         </Button>
-        <Button size="lg" variant="outline" onClick={exportToPDF} className="flex-1 gap-2 text-sm sm:text-base">
-          <Download className="h-4 w-4" />
+        <Button size="lg" variant="outline" onClick={exportToPDF} className="flex-1 gap-2 h-16 text-lg">
+          <Download className="h-5 w-5" />
           Export as PDF
         </Button>
       </div>
