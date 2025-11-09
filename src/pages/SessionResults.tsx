@@ -31,6 +31,7 @@ import {
   CheckCircle2,
   UserCircle,
   Mic,
+  Target,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -137,6 +138,11 @@ const SessionResults = () => {
                 throw new Error('Recording data is incomplete - missing filler word count');
               }
               
+              if (!recording.prompt || !recording.prompt.trim()) {
+                console.error('Recording missing prompt:', recording);
+                throw new Error('Recording data is incomplete - missing prompt');
+              }
+              
               // Convert base64 back to blob for audio playback
               const binaryString = atob(recording.audioBlob);
               const bytes = new Uint8Array(binaryString.length);
@@ -149,7 +155,8 @@ const SessionResults = () => {
               console.log('Sending to analyze-speech:', {
                 transcriptLength: recording.transcript.length,
                 duration: recording.duration,
-                fillerWordCount: recording.fillerWordCount
+                fillerWordCount: recording.fillerWordCount,
+                prompt: recording.prompt.substring(0, 50) + '...'
               });
 
               // Call AI analysis
@@ -157,7 +164,8 @@ const SessionResults = () => {
                 body: {
                   transcript: recording.transcript,
                   duration: recording.duration,
-                  fillerWordCount: recording.fillerWordCount
+                  fillerWordCount: recording.fillerWordCount,
+                  prompt: recording.prompt
                 }
               });
 
@@ -444,6 +452,19 @@ const SessionResults = () => {
           <TabsContent key={idx} value={idx.toString()} className="space-y-4 sm:space-y-6 mt-4">
             {recording.analysis && (
               <>
+                {/* Practice Scenario Card */}
+                <Card className="border-primary/30 bg-primary/5 hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      <Target className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg sm:text-xl">Practice Scenario</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <p className="text-sm sm:text-base leading-relaxed">{recording.prompt}</p>
+                  </CardContent>
+                </Card>
+
                 {/* Individual Card Metrics */}
                 <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
                   <Card className="hover:shadow-glass-lg transition-smooth">

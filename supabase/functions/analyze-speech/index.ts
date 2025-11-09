@@ -9,7 +9,7 @@ const corsHeaders = {
 
 // Input validation
 const validateAnalysisInput = (data: any): { valid: boolean; error?: string } => {
-  const { transcript, duration, fillerWordCount } = data;
+  const { transcript, duration, fillerWordCount, prompt } = data;
   
   if (typeof transcript !== 'string') {
     return { valid: false, error: 'Transcript must be a string' };
@@ -29,6 +29,10 @@ const validateAnalysisInput = (data: any): { valid: boolean; error?: string } =>
   
   if (typeof fillerWordCount !== 'number' || fillerWordCount < 0 || fillerWordCount > 1000) {
     return { valid: false, error: 'Filler word count must be between 0 and 1000' };
+  }
+  
+  if (typeof prompt !== 'string' || prompt.trim().length < 10 || prompt.length > 500) {
+    return { valid: false, error: 'Prompt must be between 10 and 500 characters' };
   }
   
   return { valid: true };
@@ -152,14 +156,15 @@ serve(async (req) => {
       );
     }
 
-    const { transcript, duration, fillerWordCount } = body;
+    const { transcript, duration, fillerWordCount, prompt } = body;
 
     console.log('Analyzing speech:', { 
       identifier,
       identifierType,
       transcriptLength: transcript.length, 
       duration, 
-      fillerWordCount 
+      fillerWordCount,
+      prompt: prompt.substring(0, 50) + '...'
     });
 
     // Calculate basic metrics
@@ -185,10 +190,15 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional speech coach providing constructive feedback. 
-Analyze the transcript and provide specific, actionable feedback in two categories:
-1. Delivery Feedback: pace, tone, energy, pauses
-2. Content Feedback: clarity, structure, engagement, key points
+            content: `You are a professional speech coach providing constructive feedback.
+
+PRACTICE SCENARIO: "${prompt}"
+
+The user was practicing responding to this specific situation. Analyze their speech in the context of this scenario and provide specific, actionable feedback in two categories:
+
+1. Speech Technique: How well did their pace, tone, energy, and pauses support handling this type of conversation? Consider what delivery style works best for this scenario.
+
+2. Content Quality: How effectively did they address the specific scenario? Did they cover key points relevant to this situation? Was their message structure appropriate for this context?
 
 Format your response as JSON with this structure:
 {
@@ -196,17 +206,19 @@ Format your response as JSON with this structure:
   "content": ["point 1", "point 2", "point 3"]
 }
 
-Keep each point concise (1-2 sentences) and constructive.`
+Keep each point concise (1-2 sentences) and constructive. Reference the scenario when relevant.`
           },
           {
             role: 'user',
-            content: `Speech transcript: "${transcript}"
+            content: `Practice Scenario: "${prompt}"
+
+Speech transcript: "${transcript}"
 Duration: ${duration} seconds
 Word count: ${wordCount}
 Speech rate: ${speechRate} words/minute
 Filler words: ${fillerWordCount}
 
-Please analyze this speech and provide feedback.`
+Please analyze how well this speech addressed the practice scenario.`
           }
         ],
       }),
