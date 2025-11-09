@@ -1,9 +1,11 @@
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, BookOpen, Lightbulb, MessageCircle, Users, TreePine, Wind, Droplets } from "lucide-react";
 import { FlippableResourceCard } from "@/components/FlippableResourceCard";
 
 const Resources = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const tips = [
     {
       title: "Discussing Climate Science",
@@ -118,6 +120,28 @@ const Resources = () => {
     }
   ];
 
+  const filteredTips = useMemo(() => {
+    if (!searchQuery.trim()) return tips;
+    const query = searchQuery.toLowerCase();
+    return tips.filter(tip => 
+      tip.title.toLowerCase().includes(query) ||
+      tip.description.toLowerCase().includes(query) ||
+      tip.category.toLowerCase().includes(query) ||
+      tip.tips.some(t => t.toLowerCase().includes(query))
+    );
+  }, [searchQuery, tips]);
+
+  const filteredGuides = useMemo(() => {
+    if (!searchQuery.trim()) return guides;
+    const query = searchQuery.toLowerCase();
+    return guides.filter(guide => 
+      guide.title.toLowerCase().includes(query) ||
+      guide.description.toLowerCase().includes(query) ||
+      guide.category.toLowerCase().includes(query) ||
+      guide.tips.some(t => t.toLowerCase().includes(query))
+    );
+  }, [searchQuery, guides]);
+
   return (
     <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -137,6 +161,8 @@ const Resources = () => {
               <Input
                 placeholder="Search resources..."
                 className="pl-10 glass-medium"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
@@ -151,7 +177,7 @@ const Resources = () => {
 
           <TabsContent value="tips" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tips.map((tip) => (
+              {filteredTips.map((tip) => (
                 <FlippableResourceCard
                   key={tip.title}
                   title={tip.title}
@@ -162,11 +188,16 @@ const Resources = () => {
                 />
               ))}
             </div>
+            {filteredTips.length === 0 && (
+              <p className="text-center text-muted-foreground py-12">
+                No tips found matching "{searchQuery}"
+              </p>
+            )}
           </TabsContent>
 
           <TabsContent value="guides" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {guides.map((guide) => (
+              {filteredGuides.map((guide) => (
                 <FlippableResourceCard
                   key={guide.title}
                   title={guide.title}
@@ -177,6 +208,11 @@ const Resources = () => {
                 />
               ))}
             </div>
+            {filteredGuides.length === 0 && (
+              <p className="text-center text-muted-foreground py-12">
+                No guides found matching "{searchQuery}"
+              </p>
+            )}
           </TabsContent>
         </Tabs>
       </div>
