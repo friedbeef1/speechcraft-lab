@@ -68,7 +68,7 @@ const Auth = () => {
             <Mic className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl text-foreground">Eco Fluent</CardTitle>
-          <CardDescription>Practice tough conversations with confidence</CardDescription>
+          <CardDescription> Talk about the environment with confidence and friendliness :)</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
