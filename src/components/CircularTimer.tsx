@@ -32,9 +32,9 @@ export function CircularTimer({ seconds, isActive, onComplete }: CircularTimerPr
   }, [isActive, onComplete]);
 
   const getColor = () => {
-    if (percentage > 50) return "stroke-green-500";
-    if (percentage > 25) return "stroke-yellow-500";
-    return "stroke-red-500";
+    if (percentage > 50) return "stroke-primary";
+    if (percentage > 25) return "stroke-accent";
+    return "stroke-destructive";
   };
 
   const radius = 45;
@@ -69,7 +69,7 @@ export function CircularTimer({ seconds, isActive, onComplete }: CircularTimerPr
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-lg sm:text-xl lg:text-2xl font-bold drop-shadow-md">{timeLeft}s</span>
+        <span className="text-lg sm:text-xl lg:text-2xl font-bold drop-shadow-md text-foreground">{timeLeft}s</span>
       </div>
     </div>
   );

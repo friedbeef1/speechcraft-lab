@@ -237,13 +237,13 @@ const PracticeSession = () => {
           className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center transition-smooth shadow-glass-lg hover:scale-110 active:scale-95 ${
             isRecording
               ? "bg-gradient-to-br from-red-500 to-red-600 animate-glow-pulse glow-primary"
-              : "bg-gradient-to-br from-primary to-primary/80 glass-light backdrop-blur-xl border-2 border-white/20 glow-primary hover:shadow-glass-lg"
+              : "bg-gradient-to-br from-primary to-primary/80 glass-light backdrop-blur-xl border-2 border-border glow-primary hover:shadow-glass-lg"
           }`}
         >
           {isRecording ? (
-            <Square className="h-8 w-8 sm:h-10 sm:w-10 text-white fill-white" />
+            <Square className="h-8 w-8 sm:h-10 sm:w-10 text-primary-foreground fill-primary-foreground" />
           ) : (
-            <Mic className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+            <Mic className="h-8 w-8 sm:h-10 sm:w-10 text-primary-foreground" />
           )}
         </button>
       </div>

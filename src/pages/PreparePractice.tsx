@@ -251,7 +251,7 @@ const PreparePractice = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">
           {isScenarioMode ? "Create Scenario" : "Freestyle Practice"}
         </h1>
         <p className="text-muted-foreground text-lg">

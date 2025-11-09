@@ -77,7 +77,7 @@ const SessionResults = () => {
     let highlighted = text;
     fillerWords.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      highlighted = highlighted.replace(regex, `<mark class="bg-amber-200 dark:bg-amber-900/50 px-1 rounded">$&</mark>`);
+      highlighted = highlighted.replace(regex, `<mark class="bg-destructive/20 text-foreground px-1 rounded">$&</mark>`);
     });
     return highlighted;
   };
@@ -282,7 +282,7 @@ const SessionResults = () => {
         </Badge>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Session Results</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Session Results</h1>
 
       {/* Key Metrics */}
       <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">

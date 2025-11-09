@@ -108,7 +108,7 @@ const History = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Practice History</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">Practice History</h1>
         <p className="text-muted-foreground text-lg">
           Review your past sessions and track your progress
         </p>
@@ -183,7 +183,7 @@ const History = () => {
           {sessions.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No practice sessions yet</h3>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">No practice sessions yet</h3>
               <p className="text-muted-foreground mb-4">
                 Start practicing to see your history here
               </p>
@@ -221,7 +221,7 @@ const History = () => {
                     <TableCell className="text-center">{session.wordCount}</TableCell>
                     <TableCell className="text-center">{session.speechRate} wpm</TableCell>
                     <TableCell className="text-center">
-                      <span className="text-amber-500 font-semibold">
+                      <span className="text-destructive font-semibold">
                         {session.fillerWordCount}
                       </span>
                     </TableCell>

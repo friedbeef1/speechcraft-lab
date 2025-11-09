@@ -146,7 +146,7 @@ const Index = () => {
   return (
     <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Practice Scenarios</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Practice Scenarios</h1>
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
@@ -170,7 +170,7 @@ const Index = () => {
           {userScenarios.length === 0 ? (
             <div className="text-center py-8 sm:py-12 border-2 border-dashed border-border/50 rounded-lg glass-ultralight backdrop-blur-md px-3">
               <Pencil className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4 animate-float" />
-              <h3 className="text-base sm:text-lg font-semibold mb-2">No scenarios yet</h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">No scenarios yet</h3>
               <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">
                 Create your first custom scenario to start practicing
               </p>
@@ -345,7 +345,7 @@ const Index = () => {
               <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base sm:text-lg mb-1">Freestyle Practice</h3>
+              <h3 className="font-semibold text-base sm:text-lg mb-1 text-foreground">Freestyle Practice</h3>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Start an open practice session with your own prompts and topics
               </p>

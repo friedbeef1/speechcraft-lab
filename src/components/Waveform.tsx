@@ -90,7 +90,7 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
       />
       {fillerWordFlash && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-white font-bold text-xs sm:text-sm lg:text-base glass-heavy backdrop-blur-xl px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full animate-scale-in shadow-glass-lg">
+          <span className="text-primary-foreground font-bold text-xs sm:text-sm lg:text-base glass-heavy backdrop-blur-xl px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full animate-scale-in shadow-glass-lg">
             Filler word!
           </span>
         </div>
