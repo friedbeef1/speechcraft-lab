@@ -448,139 +448,137 @@ const SessionResults = () => {
           ))}
         </TabsList>
 
-        {recordings.map((recording, idx) => (
-          <TabsContent key={idx} value={idx.toString()} className="space-y-4 sm:space-y-6 mt-4">
-            {recording.analysis && (
-              <>
-                {/* Practice Scenario Card */}
-                <Card className="border-primary/30 bg-primary/5 hover:shadow-glass-lg transition-smooth">
-                  <CardHeader className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3">
-                      <Target className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg sm:text-xl">Practice Scenario</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6 pt-0">
-                    <p className="text-sm sm:text-base leading-relaxed">{recording.prompt}</p>
-                  </CardContent>
-                </Card>
+        <TabsContent value={selectedTab} className="space-y-4 sm:space-y-6 mt-4">
+          {currentRecording?.analysis && (
+            <>
+              {/* Practice Scenario Card */}
+              <Card className="border-primary/30 bg-primary/5 hover:shadow-glass-lg transition-smooth">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <Target className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg sm:text-xl">Practice Scenario</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <p className="text-sm sm:text-base leading-relaxed">{currentRecording.prompt}</p>
+                </CardContent>
+              </Card>
 
-                {/* Individual Card Metrics */}
-                <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-3 sm:p-4">
-                      <CardTitle className="text-xs sm:text-sm font-medium">Fluency</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 pt-0">
-                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.fluencyScore}/100</div>
-                      <Progress value={recording.analysis.metrics.fluencyScore} className="mt-2" />
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-3 sm:p-4">
-                      <CardTitle className="text-xs sm:text-sm font-medium">Words</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 pt-0">
-                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.wordCount}</div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-3 sm:p-4">
-                      <CardTitle className="text-xs sm:text-sm font-medium">Rate</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 pt-0">
-                      <div className="text-xl sm:text-2xl font-bold">{recording.analysis.metrics.speechRate} WPM</div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="hover:shadow-glass-lg transition-smooth">
-                    <CardHeader className="p-3 sm:p-4">
-                      <CardTitle className="text-xs sm:text-sm font-medium">Fillers</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-4 pt-0">
-                      <div className="text-xl sm:text-2xl font-bold text-amber-500">{recording.analysis.metrics.fillerWordCount}</div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Speech Technique Review Card */}
-                <Card className="hover:shadow-glass-lg transition-smooth border-primary/20">
-                  <CardHeader className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 sm:p-3 rounded-lg glass-medium">
-                        <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg sm:text-xl">Speech Technique</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">Delivery, pace, tone, and vocal presence</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6 pt-0">
-                    <ul className="space-y-3 sm:space-y-4">
-                      {recording.analysis.feedback.delivery.map((point, i) => (
-                        <li key={i} className="flex gap-3 text-sm sm:text-base">
-                          <span className="text-primary mt-1 flex-shrink-0">•</span>
-                          <span className="break-words leading-relaxed">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Content Review Card */}
-                <Card className="hover:shadow-glass-lg transition-smooth border-accent/20">
-                  <CardHeader className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 sm:p-3 rounded-lg glass-medium">
-                        <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg sm:text-xl">Content Quality</CardTitle>
-                        <CardDescription className="text-xs sm:text-sm">Message clarity, structure, and engagement</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6 pt-0">
-                    <ul className="space-y-3 sm:space-y-4">
-                      {recording.analysis.feedback.content.map((point, i) => (
-                        <li key={i} className="flex gap-3 text-sm sm:text-base">
-                          <span className="text-accent mt-1 flex-shrink-0">•</span>
-                          <span className="break-words leading-relaxed">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Recording and Transcript */}
+              {/* Individual Card Metrics */}
+              <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
                 <Card className="hover:shadow-glass-lg transition-smooth">
-                  <CardHeader className="p-4 sm:p-6">
-                    <CardTitle className="text-base sm:text-lg">Recording & Transcript</CardTitle>
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Fluency</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
-                    {recording.audioUrl && (
-                      <div className="p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
-                        <audio controls className="w-full">
-                          <source src={recording.audioUrl} type="audio/webm" />
-                        </audio>
-                      </div>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
-                      <div className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] overflow-y-auto">
-                        {renderTranscript(recording.transcript || '')}
-                      </div>
-                    </div>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-xl sm:text-2xl font-bold">{currentRecording.analysis.metrics.fluencyScore}/100</div>
+                    <Progress value={currentRecording.analysis.metrics.fluencyScore} className="mt-2" />
                   </CardContent>
                 </Card>
-              </>
-            )}
-          </TabsContent>
-        ))}
+
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Words</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-xl sm:text-2xl font-bold">{currentRecording.analysis.metrics.wordCount}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Rate</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-xl sm:text-2xl font-bold">{currentRecording.analysis.metrics.speechRate} WPM</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-glass-lg transition-smooth">
+                  <CardHeader className="p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Fillers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-xl sm:text-2xl font-bold text-amber-500">{currentRecording.analysis.metrics.fillerWordCount}</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Speech Technique Review Card */}
+              <Card key={`delivery-${selectedTab}`} className="hover:shadow-glass-lg transition-smooth border-primary/20">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 sm:p-3 rounded-lg glass-medium">
+                      <Mic className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg sm:text-xl">Speech Technique</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Delivery, pace, tone, and vocal presence</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <ul className="space-y-3 sm:space-y-4">
+                    {currentRecording.analysis.feedback.delivery.map((point, i) => (
+                      <li key={i} className="flex gap-3 text-sm sm:text-base">
+                        <span className="text-primary mt-1 flex-shrink-0">•</span>
+                        <span className="break-words leading-relaxed">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Content Review Card */}
+              <Card key={`content-${selectedTab}`} className="hover:shadow-glass-lg transition-smooth border-accent/20">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 sm:p-3 rounded-lg glass-medium">
+                      <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg sm:text-xl">Content Quality</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">Message clarity, structure, and engagement</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <ul className="space-y-3 sm:space-y-4">
+                    {currentRecording.analysis.feedback.content.map((point, i) => (
+                      <li key={i} className="flex gap-3 text-sm sm:text-base">
+                        <span className="text-accent mt-1 flex-shrink-0">•</span>
+                        <span className="break-words leading-relaxed">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Recording and Transcript */}
+              <Card className="hover:shadow-glass-lg transition-smooth">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">Recording & Transcript</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+                  {currentRecording.audioUrl && (
+                    <div className="p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass">
+                      <audio controls className="w-full">
+                        <source src={currentRecording.audioUrl} type="audio/webm" />
+                      </audio>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <p className="text-xs sm:text-sm font-medium">Transcript (filler words highlighted):</p>
+                    <div className="text-xs sm:text-sm leading-relaxed p-3 sm:p-4 glass-ultralight backdrop-blur-md rounded-lg shadow-glass max-h-[300px] overflow-y-auto">
+                      {renderTranscript(currentRecording.transcript || '')}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Action Buttons */}
