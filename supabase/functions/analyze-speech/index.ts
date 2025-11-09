@@ -197,13 +197,15 @@ The user was practicing responding to this specific situation. Analyze their spe
 
 2. Content Quality: How effectively did they address the specific scenario? Did they cover key points relevant to this situation? Was their message structure appropriate for this context?
 
-Format your response as JSON with this structure:
+CRITICAL: You MUST respond with ONLY a JSON object, nothing else. No markdown, no explanations, no code blocks. Just the raw JSON.
+
+Required JSON structure:
 {
   "delivery": ["point 1", "point 2", "point 3"],
   "content": ["point 1", "point 2", "point 3"]
 }
 
-Keep each point concise (1-2 sentences) and constructive. Reference the scenario when relevant.`
+Keep each point concise (1-2 sentences) and constructive. Reference the specific scenario and actual speech content.`
           },
           {
             role: 'user',
@@ -242,26 +244,40 @@ Please analyze how well this speech addressed the practice scenario.`
     const data = await response.json();
     console.log('AI response received');
     
-    const aiResponse = data.choices[0].message.content;
+    let aiResponse = data.choices[0].message.content;
+    console.log('Raw AI response:', aiResponse.substring(0, 200));
     
-    // Try to parse JSON, fallback to default structure
+    // Try to parse JSON, with smart extraction if needed
     let feedback;
     try {
+      // First try direct parsing
       feedback = JSON.parse(aiResponse);
     } catch (e) {
-      console.warn('Failed to parse AI response as JSON, using defaults');
-      feedback = {
-        delivery: [
-          'Practice maintaining a steady pace throughout your speech',
-          'Consider varying your tone to emphasize key points',
-          'Work on reducing hesitation and building confidence'
-        ],
-        content: [
-          'Your main points could be more clearly structured',
-          'Consider adding specific examples to support your ideas',
-          'Try to maintain focus on your central message'
-        ]
-      };
+      try {
+        // Try to extract JSON from markdown code blocks or surrounding text
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          feedback = JSON.parse(jsonMatch[0]);
+          console.log('Successfully extracted JSON from response');
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (e2) {
+        console.error('Failed to parse AI response:', e2);
+        console.error('Response was:', aiResponse);
+        feedback = {
+          delivery: [
+            'Practice maintaining a steady pace throughout your speech',
+            'Consider varying your tone to emphasize key points',
+            'Work on reducing hesitation and building confidence'
+          ],
+          content: [
+            'Your main points could be more clearly structured',
+            'Consider adding specific examples to support your ideas',
+            'Try to maintain focus on your central message'
+          ]
+        };
+      }
     }
 
     return new Response(
