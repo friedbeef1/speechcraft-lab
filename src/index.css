@@ -20,10 +20,10 @@ All colors MUST be HSL.
     --primary: 15 85% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 45% 92%;
+    --secondary: 25 45% 88%;
     --secondary-foreground: 25 15% 25%;
 
-    --muted: 30 35% 90%;
+    --muted: 30 40% 85%;
     --muted-foreground: 25 20% 45%;
 
     --accent: 40 90% 65%;
@@ -32,8 +32,8 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 80%;
-    --input: 30 25% 88%;
+    --border: 30 25% 70%;
+    --input: 30 30% 82%;
     --ring: 15 85% 60%;
 
     --radius: 1rem;
@@ -44,20 +44,20 @@ All colors MUST be HSL.
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 45% 92% / 0.5;
     --sidebar-accent-foreground: 25 15% 25%;
-    --sidebar-border: 30 20% 80% / 0.3;
+    --sidebar-border: 30 25% 70% / 0.5;
     --sidebar-ring: 15 85% 60%;
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glass morphism */
-    --glass-light: 25 40% 99% / 0.7;
-    --glass-medium: 25 40% 99% / 0.5;
-    --glass-heavy: 25 40% 99% / 0.8;
-    --glass-ultralight: 25 40% 99% / 0.4;
+    --glass-light: 25 40% 99% / 0.75;
+    --glass-medium: 25 40% 99% / 0.55;
+    --glass-heavy: 25 40% 99% / 0.85;
+    --glass-ultralight: 25 40% 99% / 0.3;
     
     /* Shadows */
-    --shadow-glass: 0 8px 32px 0 rgba(255, 120, 80, 0.12);
-    --shadow-glass-lg: 0 12px 48px 0 rgba(255, 120, 80, 0.18);
+    --shadow-glass: 0 8px 32px 0 rgba(20, 20, 30, 0.25);
+    --shadow-glass-lg: 0 12px 48px 0 rgba(20, 20, 30, 0.35);
     
     /* Glow colors */
     --glow-primary: 15 85% 60% / 0.4;
