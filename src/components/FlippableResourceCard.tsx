@@ -15,12 +15,12 @@ export function FlippableResourceCard({ title, description, category, icon: Icon
 
   return (
     <div 
-      className="relative h-[280px] sm:h-[300px] cursor-pointer perspective-1000"
+      className="relative h-[280px] sm:h-[300px] cursor-pointer perspective-1000 transform-style-3d"
       onClick={() => setIsFlipped(!isFlipped)}
     >
       {/* Front of card */}
       <Card
-        className={`absolute inset-0 glass-medium shadow-glass hover:glass-light transition-smooth backface-hidden ${
+        className={`absolute inset-0 glass-medium shadow-glass hover:glass-light transition-all duration-500 backface-hidden ${
           isFlipped ? "rotate-y-180" : ""
         }`}
       >
@@ -41,7 +41,7 @@ export function FlippableResourceCard({ title, description, category, icon: Icon
 
       {/* Back of card */}
       <Card
-        className={`absolute inset-0 glass-medium shadow-glass backface-hidden rotate-y-180 ${
+        className={`absolute inset-0 glass-medium shadow-glass transition-all duration-500 backface-hidden rotate-y-180 ${
           isFlipped ? "rotate-y-0" : ""
         }`}
       >
