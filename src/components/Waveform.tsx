@@ -41,13 +41,19 @@ export function Waveform({ analyser, isRecording, onFillerWord }: WaveformProps)
       const width = canvas.width;
       const height = canvas.height;
 
+      // Get CSS custom properties for theme colors
+      const bgColor = fillerWordFlash 
+        ? getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+        : getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+      const strokeColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-foreground').trim();
+
       // Clear canvas
-      ctx.fillStyle = fillerWordFlash ? 'hsl(38, 92%, 50%)' : 'hsl(217, 91%, 60%)';
+      ctx.fillStyle = `hsl(${bgColor})`;
       ctx.fillRect(0, 0, width, height);
 
       // Draw waveform
       ctx.lineWidth = 3;
-      ctx.strokeStyle = 'hsl(0, 0%, 100%)';
+      ctx.strokeStyle = `hsl(${strokeColor})`;
       ctx.beginPath();
 
       const sliceWidth = width / bufferLength;

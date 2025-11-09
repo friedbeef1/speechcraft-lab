@@ -381,20 +381,20 @@ const SessionResults = () => {
             <AreaChart data={recordingData ? getVocalData(recordingData.duration) : []}>
               <defs>
                 <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(173, 80%, 40%)" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="hsl(173, 80%, 40%)" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" label={{ value: 'Time (seconds)', position: 'insideBottom', offset: -5 }} tick={{ fontSize: 12 }} />
-              <YAxis label={{ value: 'Level', angle: -90, position: 'insideLeft' }} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Area type="monotone" dataKey="pitch" stroke="hsl(217, 91%, 60%)" fillOpacity={1} fill="url(#colorPitch)" name="Pitch" />
-              <Area type="monotone" dataKey="volume" stroke="hsl(173, 80%, 40%)" fillOpacity={1} fill="url(#colorVolume)" name="Volume" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis dataKey="time" label={{ value: 'Time (seconds)', position: 'insideBottom', offset: -5 }} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+              <YAxis label={{ value: 'Level', angle: -90, position: 'insideLeft' }} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--card-foreground))' }} />
+              <Area type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorPitch)" name="Pitch" />
+              <Area type="monotone" dataKey="volume" stroke="hsl(var(--accent))" fillOpacity={1} fill="url(#colorVolume)" name="Volume" />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
