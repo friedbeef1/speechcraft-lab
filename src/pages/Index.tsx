@@ -130,7 +130,7 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
 };
 const Index = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const [userScenarios, setUserScenarios] = useState<StoredScenario[]>([]);
   useEffect(() => {
     // Load scenarios from localStorage on mount
@@ -149,8 +149,8 @@ const Index = () => {
     toast.success("Scenario deleted");
   };
   const handleStartScenario = (scenario: Scenario) => {
-    if (!user) {
-      toast.error("Please sign in to start practicing");
+    if (!user && !isGuest) {
+      toast.error("Please sign in or continue as guest");
       navigate("/auth");
       return;
     }
@@ -164,8 +164,8 @@ const Index = () => {
   };
   
   const handleStartUserScenario = (scenario: StoredScenario) => {
-    if (!user) {
-      toast.error("Please sign in to start practicing");
+    if (!user && !isGuest) {
+      toast.error("Please sign in or continue as guest");
       navigate("/auth");
       return;
     }
@@ -186,13 +186,13 @@ const Index = () => {
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
-        {!user && (
+        {!user && isGuest && (
           <div className="p-4 glass-light rounded-lg border border-border/50">
             <p className="text-sm text-muted-foreground mb-2">
-              💡 <strong>Sign in</strong> to save your practice sessions and track your progress over time!
+              💡 <strong>Sign up</strong> to save your practice sessions and track your progress over time!
             </p>
             <Button onClick={() => navigate("/auth")} size="sm" variant="outline">
-              Sign In / Sign Up
+              Sign Up / Sign In
             </Button>
           </div>
         )}

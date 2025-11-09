@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { LogIn, LogOut } from "lucide-react";
 
 export const AuthButton = () => {
-  const { user, signOut } = useAuth();
+  const { user, isGuest, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = async () => {
     if (user) {
       await signOut();
+      navigate("/auth");
+    } else if (isGuest) {
       navigate("/auth");
     } else {
       navigate("/auth");
@@ -27,6 +29,11 @@ export const AuthButton = () => {
         <>
           <LogOut className="h-4 w-4" />
           Sign Out
+        </>
+      ) : isGuest ? (
+        <>
+          <LogIn className="h-4 w-4" />
+          Sign Up
         </>
       ) : (
         <>

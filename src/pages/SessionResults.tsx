@@ -30,6 +30,7 @@ import {
   MessageSquare,
   BarChart3,
   CheckCircle2,
+  UserCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,7 @@ interface AnalysisData {
 
 const SessionResults = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
@@ -128,8 +129,8 @@ const SessionResults = () => {
 
         setAnalysisData(analysisResult);
         
-        // Save session to database if user is authenticated
-        if (user && analysisResult) {
+        // Save session to database if user is authenticated (not guest)
+        if (user && !isGuest && analysisResult) {
           try {
             const { error: insertError } = await supabase
               .from('practice_sessions')
@@ -314,6 +315,28 @@ const SessionResults = () => {
       </div>
 
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Session Results</h1>
+
+      {/* Guest Mode Banner */}
+      {isGuest && (
+        <Card className="glass-light border-primary/50">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg glass-medium">
+                <UserCircle className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Sign up to save your progress!</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Create an account to track your improvement over time and access detailed analytics.
+                </p>
+                <Button onClick={() => navigate("/auth")} size="sm">
+                  Create Account
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Key Metrics */}
       <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">

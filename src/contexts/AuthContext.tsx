@@ -5,9 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  isGuest: boolean;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,13 +18,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
+    // Check for guest mode in localStorage
+    const guestMode = localStorage.getItem('guestMode') === 'true';
+    setIsGuest(guestMode);
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        // Clear guest mode when user signs in
+        if (session?.user) {
+          localStorage.removeItem('guestMode');
+          setIsGuest(false);
+        }
       }
     );
 
@@ -55,12 +68,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`
+      }
+    });
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('guestMode');
+    setIsGuest(false);
+  };
+
+  const continueAsGuest = () => {
+    localStorage.setItem('guestMode', 'true');
+    setIsGuest(true);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, isGuest, signUp, signIn, signInWithGoogle, signOut, continueAsGuest }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Target, Award, Clock } from "lucide-react";
+import { TrendingUp, Target, Award, Clock, UserCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const Analytics = () => {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [overviewStats, setOverviewStats] = useState([
@@ -23,9 +24,7 @@ const Analytics = () => {
   const [metricsData, setMetricsData] = useState<{ metric: string; score: number }[]>([]);
 
   useEffect(() => {
-    if (!user) {
-      toast.error("Please sign in to view analytics");
-      navigate("/auth");
+    if (!user || isGuest) {
       return;
     }
 
@@ -121,7 +120,80 @@ const Analytics = () => {
     };
 
     fetchAnalytics();
-  }, [user, navigate]);
+  }, [user, isGuest, navigate]);
+
+  // Guest user view
+  if (isGuest) {
+    return (
+      <div className="min-h-screen p-6 md:p-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+              Analytics Dashboard
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Track your progress and identify areas for improvement
+            </p>
+          </div>
+
+          <Card className="glass-light border-primary/50">
+            <CardContent className="p-8 text-center">
+              <div className="inline-flex p-4 rounded-full glass-medium mb-4">
+                <UserCircle className="h-12 w-12 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Sign up to track your progress!</h2>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Create an account to save your practice sessions, view detailed analytics, and track your improvement over time.
+              </p>
+              <Button onClick={() => navigate("/auth")} size="lg" className="glow-primary">
+                Create Account
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-medium">
+            <CardHeader>
+              <CardTitle>What you'll get with an account:</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <div className="p-1 rounded-full glass-light mt-1">
+                    <Target className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <strong>Session History</strong> - Keep track of all your practice sessions
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="p-1 rounded-full glass-light mt-1">
+                    <Award className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <strong>Progress Tracking</strong> - See your improvement over time with charts
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="p-1 rounded-full glass-light mt-1">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <strong>Detailed Analytics</strong> - Get insights into your strengths and areas to improve
+                  </div>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Unauthenticated user - redirect
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
 
   if (isLoading) {
     return (
