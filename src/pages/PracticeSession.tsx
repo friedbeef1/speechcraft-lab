@@ -15,6 +15,7 @@ import { Waveform } from "@/components/Waveform";
 import { CircularTimer } from "@/components/CircularTimer";
 import { TipCard } from "@/components/TipCard";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Sample prompts (in production, these would come from the previous screen)
 const samplePrompts = [
@@ -95,10 +96,45 @@ const PracticeSession = () => {
         timerRef.current = null;
       }
 
-      // Save recording info and navigate to results
       console.log("Recording stopped, audio blob size:", audioBlob.size);
-      toast.success("Recording saved - analyzing...");
-      navigate("/results");
+      toast.info("Transcribing your speech...");
+
+      // Convert blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        try {
+          const base64Audio = (reader.result as string).split(',')[1];
+          
+          // Call transcription service
+          const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+            body: { audio: base64Audio }
+          });
+
+          if (error) throw error;
+
+          // Store real data in localStorage
+          localStorage.setItem('lastRecording', JSON.stringify({
+            transcript: data.transcript,
+            duration: recordingTime,
+            audioBlob: base64Audio,
+            fillerWordCount: data.fillerWordCount,
+            prompt: currentPrompt
+          }));
+
+          toast.success("Transcription complete!");
+          navigate("/results");
+        } catch (error) {
+          console.error("Transcription error:", error);
+          toast.error("Failed to transcribe audio");
+        }
+      };
+
+      reader.onerror = () => {
+        console.error("Failed to read audio blob");
+        toast.error("Failed to process recording");
+      };
     } catch (error) {
       console.error("Failed to stop recording:", error);
       toast.error("Failed to stop recording");

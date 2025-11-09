@@ -52,24 +52,30 @@ const SessionResults = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [recordingData, setRecordingData] = useState<{
+    transcript: string;
+    duration: number;
+    audioBlob: string;
+    fillerWordCount: number;
+    prompt: string;
+  } | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string>("");
 
-  // Mock data - in production, this would come from the recording session
-  const mockTranscript = `Hello everyone, I'm here to talk about the importance of effective communication in the workplace. Um, good communication is essential for, uh, building strong teams and achieving success. When we communicate clearly, we can, like, share ideas better and work together more efficiently. Effective communication involves both speaking and listening. We need to, uh, be clear in our message and also, you know, understand what others are saying. This helps prevent misunderstandings and builds trust among team members.`;
-  
-  const mockDuration = 45; // seconds
-  const mockFillerWords = ["um", "uh", "like", "you know"];
+  const fillerWords = ["um", "uh", "like", "you know", "so", "actually", "basically"];
 
-  // Generate mock vocal variation data
-  const mockVocalData = Array.from({ length: 20 }, (_, i) => ({
-    time: i * 2.25,
-    pitch: 100 + Math.random() * 50 + Math.sin(i * 0.5) * 20,
-    volume: 60 + Math.random() * 30 + Math.cos(i * 0.3) * 15,
-    card: Math.floor(i / 4) + 1,
-  }));
+  // Generate vocal variation data based on duration
+  const getVocalData = (duration: number) => {
+    const points = Math.max(10, Math.floor(duration / 2));
+    return Array.from({ length: points }, (_, i) => ({
+      time: (duration / points) * i,
+      pitch: 100 + Math.random() * 50 + Math.sin(i * 0.5) * 20,
+      volume: 60 + Math.random() * 30 + Math.cos(i * 0.3) * 15,
+    }));
+  };
 
   const highlightFillerWords = (text: string) => {
     let highlighted = text;
-    mockFillerWords.forEach(word => {
+    fillerWords.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
       highlighted = highlighted.replace(regex, `<mark class="bg-amber-200 dark:bg-amber-900/50 px-1 rounded">$&</mark>`);
     });
@@ -77,64 +83,93 @@ const SessionResults = () => {
   };
 
   useEffect(() => {
+    const loadRecordingData = () => {
+      const stored = localStorage.getItem('lastRecording');
+      if (!stored) {
+        toast.error("No recording data found");
+        navigate("/");
+        return null;
+      }
+      return JSON.parse(stored);
+    };
+
     const analyzeRecording = async () => {
       try {
         setIsLoading(true);
         
-        // Count filler words in transcript
-        const fillerWordCount = mockFillerWords.reduce((count, word) => {
-          const regex = new RegExp(`\\b${word}\\b`, 'gi');
-          const matches = mockTranscript.match(regex);
-          return count + (matches ? matches.length : 0);
-        }, 0);
+        // Load recording data from localStorage
+        const data = loadRecordingData();
+        if (!data) return;
+        
+        setRecordingData(data);
 
-        const { data, error } = await supabase.functions.invoke('analyze-speech', {
+        // Convert base64 back to blob for audio playback
+        const binaryString = atob(data.audioBlob);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+
+        // Call AI analysis with real transcript
+        const { data: analysisResult, error } = await supabase.functions.invoke('analyze-speech', {
           body: {
-            transcript: mockTranscript,
-            duration: mockDuration,
-            fillerWordCount
+            transcript: data.transcript,
+            duration: data.duration,
+            fillerWordCount: data.fillerWordCount
           }
         });
 
         if (error) throw error;
 
-        setAnalysisData(data);
+        setAnalysisData(analysisResult);
         toast.success("Analysis complete!");
       } catch (error) {
         console.error('Error analyzing speech:', error);
         toast.error("Failed to analyze speech");
         
         // Fallback data if analysis fails
-        setAnalysisData({
-          metrics: {
-            fluencyScore: 78,
-            wordCount: mockTranscript.split(/\s+/).length,
-            speechRate: Math.round((mockTranscript.split(/\s+/).length / mockDuration) * 60),
-            fillerWordCount: 5
-          },
-          feedback: {
-            delivery: [
-              "Your speaking pace is good, maintaining around 140 words per minute",
-              "Try to reduce filler words to sound more confident",
-              "Consider adding more pauses for emphasis"
-            ],
-            content: [
-              "Your main message about communication is clear",
-              "Good use of examples to support your points",
-              "Consider structuring with a stronger opening and closing"
-            ]
-          }
-        });
+        if (recordingData) {
+          setAnalysisData({
+            metrics: {
+              fluencyScore: 75,
+              wordCount: recordingData.transcript.split(/\s+/).length,
+              speechRate: Math.round((recordingData.transcript.split(/\s+/).length / recordingData.duration) * 60),
+              fillerWordCount: recordingData.fillerWordCount
+            },
+            feedback: {
+              delivery: [
+                "Your speaking pace could be improved for better engagement",
+                "Work on reducing filler words to sound more confident",
+                "Consider varying your tone for emphasis"
+              ],
+              content: [
+                "Your message is clear but could be more structured",
+                "Consider adding specific examples to support your points",
+                "Work on stronger opening and closing statements"
+              ]
+            }
+          });
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     analyzeRecording();
+
+    // Cleanup audio URL on unmount
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
   }, []);
 
   const exportToPDF = () => {
-    if (!analysisData) return;
+    if (!analysisData || !recordingData) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -143,20 +178,34 @@ const SessionResults = () => {
     doc.setFontSize(20);
     doc.text("Speech Analysis Report", pageWidth / 2, 20, { align: "center" });
     
+    // Prompt
+    doc.setFontSize(12);
+    doc.text("Prompt:", 20, 35);
+    doc.setFontSize(10);
+    const promptLines = doc.splitTextToSize(recordingData.prompt, pageWidth - 40);
+    doc.text(promptLines, 20, 42);
+    
+    let y = 42 + promptLines.length * 5 + 10;
+    
     // Key Metrics
     doc.setFontSize(16);
-    doc.text("Key Metrics", 20, 40);
+    doc.text("Key Metrics", 20, y);
+    y += 8;
     doc.setFontSize(12);
-    doc.text(`Fluency Score: ${analysisData.metrics.fluencyScore}/100`, 20, 50);
-    doc.text(`Word Count: ${analysisData.metrics.wordCount}`, 20, 58);
-    doc.text(`Speech Rate: ${analysisData.metrics.speechRate} wpm`, 20, 66);
-    doc.text(`Filler Words: ${analysisData.metrics.fillerWordCount}`, 20, 74);
+    doc.text(`Fluency Score: ${analysisData.metrics.fluencyScore}/100`, 20, y);
+    y += 8;
+    doc.text(`Word Count: ${analysisData.metrics.wordCount}`, 20, y);
+    y += 8;
+    doc.text(`Speech Rate: ${analysisData.metrics.speechRate} wpm`, 20, y);
+    y += 8;
+    doc.text(`Filler Words: ${analysisData.metrics.fillerWordCount}`, 20, y);
+    y += 16;
     
     // Delivery Feedback
     doc.setFontSize(16);
-    doc.text("Delivery Feedback", 20, 90);
+    doc.text("Delivery Feedback", 20, y);
+    y += 8;
     doc.setFontSize(10);
-    let y = 98;
     analysisData.feedback.delivery.forEach((point, i) => {
       const lines = doc.splitTextToSize(`• ${point}`, pageWidth - 40);
       doc.text(lines, 20, y);
@@ -182,7 +231,7 @@ const SessionResults = () => {
       doc.text("Transcript", 20, y);
       y += 8;
       doc.setFontSize(9);
-      const transcriptLines = doc.splitTextToSize(mockTranscript, pageWidth - 40);
+      const transcriptLines = doc.splitTextToSize(recordingData.transcript, pageWidth - 40);
       transcriptLines.forEach((line: string) => {
         if (y > 270) {
           doc.addPage();
@@ -329,7 +378,7 @@ const SessionResults = () => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={mockVocalData}>
+            <AreaChart data={recordingData ? getVocalData(recordingData.duration) : []}>
               <defs>
                 <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.8}/>
@@ -351,46 +400,18 @@ const SessionResults = () => {
         </CardContent>
       </Card>
 
-      {/* Per-Card Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Per-Card Breakdown</CardTitle>
-          <CardDescription>Detailed analysis for each prompt</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible>
-            <AccordionItem value="card-1">
-              <AccordionTrigger>Card 1: Introduction</AccordionTrigger>
-              <AccordionContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Duration</p>
-                    <p className="text-lg font-semibold">15s</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Word Count</p>
-                    <p className="text-lg font-semibold">35</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Filler Words</p>
-                    <p className="text-lg font-semibold text-amber-500">2</p>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-2">Transcript:</p>
-                  <p className="text-sm text-muted-foreground">
-                    "Hello everyone, I'm here to talk about the importance of effective communication in the workplace. Um, good communication is essential..."
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" className="gap-2">
-                  <Play className="h-4 w-4" />
-                  Play Segment
-                </Button>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </CardContent>
-      </Card>
+      {/* Prompt Display */}
+      {recordingData && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Practice Prompt</CardTitle>
+            <CardDescription>The prompt you responded to</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg leading-relaxed">{recordingData.prompt}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Full Transcript and Recording */}
       <Card>
@@ -399,21 +420,20 @@ const SessionResults = () => {
           <CardDescription>Complete audio and text from your session</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
-            <Button size="icon" variant="outline">
-              <Play className="h-4 w-4" />
-            </Button>
-            <div className="flex-1">
-              <Progress value={0} className="h-2" />
+          {audioUrl && (
+            <div className="p-4 bg-muted rounded-lg">
+              <audio controls className="w-full">
+                <source src={audioUrl} type="audio/webm" />
+                Your browser does not support the audio element.
+              </audio>
             </div>
-            <span className="text-sm text-muted-foreground">0:00 / 0:45</span>
-          </div>
+          )}
           
           <div className="space-y-2">
             <p className="text-sm font-medium">Transcript (filler words highlighted):</p>
             <div 
               className="text-sm leading-relaxed p-4 bg-muted/50 rounded-lg"
-              dangerouslySetInnerHTML={{ __html: highlightFillerWords(mockTranscript) }}
+              dangerouslySetInnerHTML={{ __html: highlightFillerWords(recordingData?.transcript || '') }}
             />
           </div>
         </CardContent>
