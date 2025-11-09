@@ -14,7 +14,6 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Practice", url: "/practice", icon: Mic },
   { title: "History", url: "/history", icon: History },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Resources", url: "/resources", icon: BookOpen },
