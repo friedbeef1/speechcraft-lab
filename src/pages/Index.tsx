@@ -260,7 +260,7 @@ const Index = () => {
   };
   return <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto animate-fade-in">
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Talk about the environment</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">Let's talk about the environment</h1>
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
