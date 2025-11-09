@@ -268,7 +268,7 @@ const Index = () => {
               <AccordionTrigger className="hover:no-underline py-3 sm:py-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="p-1.5 sm:p-2 rounded-lg glass-medium backdrop-blur-md flex-shrink-0">
-                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-accent-foreground" />
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </div>
                   <div className="text-left min-w-0 flex-1">
                     <div className="font-semibold text-sm sm:text-base">Social</div>
