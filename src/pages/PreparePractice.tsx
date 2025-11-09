@@ -243,7 +243,7 @@ const PreparePractice = () => {
         </Card>}
 
       {/* Prompts Section */}
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <div className="flex flex-col gap-4">
             <div>
