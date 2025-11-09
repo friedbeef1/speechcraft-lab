@@ -436,7 +436,7 @@ const PracticeSession = () => {
           {isRecording ? (
             <Square className="h-8 w-8 sm:h-10 sm:w-10 text-primary-foreground fill-primary-foreground" />
           ) : (
-            <Mic className="h-8 w-8 sm:h-10 sm:w-10 text-primary-foreground" />
+            <Mic className="h-8 w-8 sm:h-10 sm:w-10 text-gray-900 dark:text-white" />
           )}
         </button>
       </div>
