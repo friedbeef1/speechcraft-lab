@@ -191,7 +191,7 @@ const Settings = () => {
         <Card className="glass-medium shadow-glass">
           <CardContent className="pt-6">
             <div className="text-center text-sm text-muted-foreground">
-              <p>Speech Coach v4.7.1</p>
+              <p>Eco Fluent v1.0</p>
               <p className="mt-1">© 2025 All rights reserved</p>
             </div>
           </CardContent>
