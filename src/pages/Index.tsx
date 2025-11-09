@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, Users, Mic, Coffee, MessageSquare, Pencil, Recycle,
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { getScenarios, deleteScenario, StoredScenario } from "@/lib/storage";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Map icon strings to components
 const iconMap: Record<string, React.ElementType> = {
@@ -129,6 +130,7 @@ const prebuiltScenarios: Record<string, Scenario[]> = {
 };
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [userScenarios, setUserScenarios] = useState<StoredScenario[]>([]);
   useEffect(() => {
     // Load scenarios from localStorage on mount
@@ -147,6 +149,11 @@ const Index = () => {
     toast.success("Scenario deleted");
   };
   const handleStartScenario = (scenario: Scenario) => {
+    if (!user) {
+      toast.error("Please sign in to start practicing");
+      navigate("/auth");
+      return;
+    }
     localStorage.setItem('activeScenario', JSON.stringify({
       title: scenario.title,
       description: scenario.description,
@@ -157,6 +164,11 @@ const Index = () => {
   };
   
   const handleStartUserScenario = (scenario: StoredScenario) => {
+    if (!user) {
+      toast.error("Please sign in to start practicing");
+      navigate("/auth");
+      return;
+    }
     localStorage.setItem('activeScenario', JSON.stringify({
       title: scenario.title,
       description: scenario.description,
@@ -174,6 +186,16 @@ const Index = () => {
         <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
           Choose a scenario to practice or create your own custom session
         </p>
+        {!user && (
+          <div className="p-4 glass-light rounded-lg border border-border/50">
+            <p className="text-sm text-muted-foreground mb-2">
+              💡 <strong>Sign in</strong> to save your practice sessions and track your progress over time!
+            </p>
+            <Button onClick={() => navigate("/auth")} size="sm" variant="outline">
+              Sign In / Sign Up
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Pre-built Scenarios Section */}

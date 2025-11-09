@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 import Index from "./pages/Index";
@@ -13,6 +14,7 @@ import SessionResults from "./pages/SessionResults";
 import Analytics from "./pages/Analytics";
 import Resources from "./pages/Resources";
 import Settings from "./pages/Settings";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,26 +22,29 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <OnboardingTutorial onComplete={() => console.log("Tutorial completed")} />
-        <BrowserRouter>
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/prepare" element={<PreparePractice />} />
-              <Route path="/session" element={<PracticeSession />} />
-              <Route path="/results" element={<SessionResults />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/settings" element={<Settings />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <OnboardingTutorial onComplete={() => console.log("Tutorial completed")} />
+          <BrowserRouter>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/prepare" element={<PreparePractice />} />
+                <Route path="/session" element={<PracticeSession />} />
+                <Route path="/results" element={<SessionResults />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/resources" element={<Resources />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/auth" element={<Auth />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

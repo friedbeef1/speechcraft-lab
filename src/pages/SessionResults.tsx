@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LineChart,
   Line,
@@ -49,6 +50,7 @@ interface AnalysisData {
 
 const SessionResults = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
@@ -125,6 +127,35 @@ const SessionResults = () => {
         if (error) throw error;
 
         setAnalysisData(analysisResult);
+        
+        // Save session to database if user is authenticated
+        if (user && analysisResult) {
+          try {
+            const { error: insertError } = await supabase
+              .from('practice_sessions')
+              .insert({
+                user_id: user.id,
+                transcript: data.transcript,
+                duration: data.duration,
+                fluency_score: analysisResult.metrics.fluencyScore,
+                word_count: analysisResult.metrics.wordCount,
+                speech_rate: analysisResult.metrics.speechRate,
+                filler_word_count: analysisResult.metrics.fillerWordCount,
+                delivery_feedback: analysisResult.feedback.delivery,
+                content_feedback: analysisResult.feedback.content,
+                prompts: [{ text: data.prompt }],
+                audio_url: null, // No recording stored per requirement
+                category: null // Can be derived from scenario later
+              });
+
+            if (insertError) {
+              console.error('Error saving session:', insertError);
+            }
+          } catch (saveError) {
+            console.error('Error saving to database:', saveError);
+          }
+        }
+        
         toast.success("Analysis complete!");
       } catch (error) {
         console.error('Error analyzing speech:', error);

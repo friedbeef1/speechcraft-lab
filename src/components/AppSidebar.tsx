@@ -1,8 +1,10 @@
 import { Home, Mic, BarChart3, Settings, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { AuthButton } from "@/components/AuthButton";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -16,7 +18,6 @@ const navItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Resources", url: "/resources", icon: BookOpen },
-  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -51,6 +52,15 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="px-2 py-2">
+              <AuthButton />
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

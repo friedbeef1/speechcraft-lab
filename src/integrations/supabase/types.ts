@@ -17,13 +17,18 @@ export type Database = {
       practice_sessions: {
         Row: {
           audio_url: string | null
+          category: string | null
+          clarity_score: number | null
           completed_at: string
+          confidence_score: number | null
           content_feedback: Json
           delivery_feedback: Json
           duration: number
+          empathy_score: number | null
           filler_word_count: number
           fluency_score: number
           id: string
+          pacing_score: number | null
           prompts: Json
           scenario_id: string | null
           speech_rate: number
@@ -33,13 +38,18 @@ export type Database = {
         }
         Insert: {
           audio_url?: string | null
+          category?: string | null
+          clarity_score?: number | null
           completed_at?: string
+          confidence_score?: number | null
           content_feedback?: Json
           delivery_feedback?: Json
           duration: number
+          empathy_score?: number | null
           filler_word_count: number
           fluency_score: number
           id?: string
+          pacing_score?: number | null
           prompts?: Json
           scenario_id?: string | null
           speech_rate: number
@@ -49,13 +59,18 @@ export type Database = {
         }
         Update: {
           audio_url?: string | null
+          category?: string | null
+          clarity_score?: number | null
           completed_at?: string
+          confidence_score?: number | null
           content_feedback?: Json
           delivery_feedback?: Json
           duration?: number
+          empathy_score?: number | null
           filler_word_count?: number
           fluency_score?: number
           id?: string
+          pacing_score?: number | null
           prompts?: Json
           scenario_id?: string | null
           speech_rate?: number

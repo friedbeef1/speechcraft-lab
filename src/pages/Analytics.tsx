@@ -1,38 +1,138 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Target, Award, Clock } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Analytics = () => {
-  const overviewStats = [
-    { label: "Total Sessions", value: "24", icon: Target, change: "+12%" },
-    { label: "Average Score", value: "8.2", icon: Award, change: "+0.5" },
-    { label: "Practice Time", value: "12h", icon: Clock, change: "+3h" },
-    { label: "Improvement", value: "+15%", icon: TrendingUp, change: "This month" },
-  ];
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [overviewStats, setOverviewStats] = useState([
+    { label: "Total Sessions", value: "0", icon: Target, change: "--" },
+    { label: "Average Score", value: "0", icon: Award, change: "--" },
+    { label: "Practice Time", value: "0h", icon: Clock, change: "--" },
+    { label: "Improvement", value: "--", icon: TrendingUp, change: "No data yet" },
+  ]);
+  const [sessionData, setSessionData] = useState<{ date: string; score: number }[]>([]);
+  const [categoryData, setCategoryData] = useState<{ name: string; value: number; color: string }[]>([]);
+  const [metricsData, setMetricsData] = useState<{ metric: string; score: number }[]>([]);
 
-  const sessionData = [
-    { date: "Mon", score: 7.5 },
-    { date: "Tue", score: 8.0 },
-    { date: "Wed", score: 7.8 },
-    { date: "Thu", score: 8.5 },
-    { date: "Fri", score: 8.2 },
-    { date: "Sat", score: 8.7 },
-    { date: "Sun", score: 8.9 },
-  ];
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please sign in to view analytics");
+      navigate("/auth");
+      return;
+    }
 
-  const categoryData = [
-    { name: "Work", value: 45, color: "hsl(var(--primary))" },
-    { name: "Social", value: 35, color: "hsl(var(--accent))" },
-    { name: "Love", value: 20, color: "hsl(var(--secondary))" },
-  ];
+    const fetchAnalytics = async () => {
+      try {
+        setIsLoading(true);
 
-  const metricsData = [
-    { metric: "Clarity", score: 8.5 },
-    { metric: "Confidence", score: 7.8 },
-    { metric: "Empathy", score: 8.2 },
-    { metric: "Pacing", score: 7.5 },
-  ];
+        // Fetch all sessions for this user
+        const { data: sessions, error } = await supabase
+          .from('practice_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!sessions || sessions.length === 0) {
+          setIsLoading(false);
+          return;
+        }
+
+        // Calculate overview stats
+        const totalSessions = sessions.length;
+        const avgScore = (sessions.reduce((sum, s) => sum + s.fluency_score, 0) / totalSessions).toFixed(1);
+        const totalMinutes = Math.round(sessions.reduce((sum, s) => sum + s.duration, 0) / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const practiceTime = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+        // Calculate improvement (compare recent half vs older half)
+        const midPoint = Math.floor(sessions.length / 2);
+        const recentAvg = sessions.slice(0, midPoint).reduce((sum, s) => sum + s.fluency_score, 0) / midPoint;
+        const olderAvg = sessions.slice(midPoint).reduce((sum, s) => sum + s.fluency_score, 0) / (sessions.length - midPoint);
+        const improvement = sessions.length >= 2 ? `${((recentAvg - olderAvg) / olderAvg * 100).toFixed(0)}%` : "--";
+
+        setOverviewStats([
+          { label: "Total Sessions", value: totalSessions.toString(), icon: Target, change: `${sessions.length} total` },
+          { label: "Average Score", value: avgScore, icon: Award, change: `out of 100` },
+          { label: "Practice Time", value: practiceTime, icon: Clock, change: `${totalMinutes} min total` },
+          { label: "Improvement", value: improvement, icon: TrendingUp, change: "Recent vs older" },
+        ]);
+
+        // Get last 7 days of data
+        const last7Days = sessions.slice(0, 7).reverse();
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const scoresByDay = last7Days.map(s => ({
+          date: daysOfWeek[new Date(s.completed_at).getDay()],
+          score: s.fluency_score / 10 // Convert to 0-10 scale for better visualization
+        }));
+        setSessionData(scoresByDay);
+
+        // Category distribution (if we have category data)
+        const categoryCounts = sessions.reduce((acc, s) => {
+          const cat = s.category || 'General';
+          acc[cat] = (acc[cat] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        const colors = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--secondary))"];
+        const categoryChartData = Object.entries(categoryCounts).map(([name, value], i) => ({
+          name,
+          value,
+          color: colors[i % colors.length]
+        }));
+        setCategoryData(categoryChartData);
+
+        // Skills assessment (using individual scores if available)
+        const avgClarity = sessions.filter(s => s.clarity_score).reduce((sum, s) => sum + (s.clarity_score || 0), 0) / sessions.filter(s => s.clarity_score).length || 0;
+        const avgConfidence = sessions.filter(s => s.confidence_score).reduce((sum, s) => sum + (s.confidence_score || 0), 0) / sessions.filter(s => s.confidence_score).length || 0;
+        const avgEmpathy = sessions.filter(s => s.empathy_score).reduce((sum, s) => sum + (s.empathy_score || 0), 0) / sessions.filter(s => s.empathy_score).length || 0;
+        const avgPacing = sessions.filter(s => s.pacing_score).reduce((sum, s) => sum + (s.pacing_score || 0), 0) / sessions.filter(s => s.pacing_score).length || 0;
+
+        // If no individual scores, derive from overall fluency
+        const skillsData = avgClarity > 0 ? [
+          { metric: "Clarity", score: avgClarity },
+          { metric: "Confidence", score: avgConfidence },
+          { metric: "Empathy", score: avgEmpathy },
+          { metric: "Pacing", score: avgPacing },
+        ] : [
+          { metric: "Fluency", score: parseFloat(avgScore) / 10 },
+          { metric: "Word Count", score: sessions.reduce((sum, s) => sum + s.word_count, 0) / sessions.length / 20 },
+          { metric: "Speech Rate", score: sessions.reduce((sum, s) => sum + s.speech_rate, 0) / sessions.length / 20 },
+          { metric: "Filler Words", score: Math.max(0, 10 - sessions.reduce((sum, s) => sum + s.filler_word_count, 0) / sessions.length) },
+        ];
+        setMetricsData(skillsData);
+
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+        toast.error("Failed to load analytics data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [user, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-lg text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6 md:p-8">
