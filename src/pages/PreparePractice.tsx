@@ -246,7 +246,7 @@ const PreparePractice = () => {
       <Card className="mt-6">
         <CardHeader>
           <div className="flex flex-col gap-4">
-            <div>
+            <div className="space-y-2">
               <CardTitle>Practice Prompts</CardTitle>
               <CardDescription>Add, edit, and reorder your speaking prompts about the environment</CardDescription>
             </div>
