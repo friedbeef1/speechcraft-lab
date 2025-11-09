@@ -121,6 +121,22 @@ const SessionResults = () => {
         const processedRecordings = await Promise.all(
           recordingsData.map(async (recording) => {
             try {
+              // Validate recording data before processing
+              if (!recording.transcript || !recording.transcript.trim()) {
+                console.error('Recording missing transcript:', recording);
+                throw new Error('Recording data is incomplete - missing transcript');
+              }
+              
+              if (!recording.duration || recording.duration <= 0) {
+                console.error('Recording missing duration:', recording);
+                throw new Error('Recording data is incomplete - missing duration');
+              }
+              
+              if (recording.fillerWordCount === undefined) {
+                console.error('Recording missing filler word count:', recording);
+                throw new Error('Recording data is incomplete - missing filler word count');
+              }
+              
               // Convert base64 back to blob for audio playback
               const binaryString = atob(recording.audioBlob);
               const bytes = new Uint8Array(binaryString.length);
@@ -129,6 +145,12 @@ const SessionResults = () => {
               }
               const blob = new Blob([bytes], { type: 'audio/webm' });
               const audioUrl = URL.createObjectURL(blob);
+
+              console.log('Sending to analyze-speech:', {
+                transcriptLength: recording.transcript.length,
+                duration: recording.duration,
+                fillerWordCount: recording.fillerWordCount
+              });
 
               // Call AI analysis
               const { data: analysisResult, error } = await supabase.functions.invoke('analyze-speech', {
@@ -139,7 +161,10 @@ const SessionResults = () => {
                 }
               });
 
-              if (error) throw error;
+              if (error) {
+                console.error('Analysis error:', error);
+                throw error;
+              }
 
               return {
                 ...recording,

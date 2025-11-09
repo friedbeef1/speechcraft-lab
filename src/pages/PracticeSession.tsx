@@ -268,15 +268,38 @@ const PracticeSession = () => {
       return;
     }
     
+    // Validate that completed recordings have all required fields
+    const validRecordings = completedRecordings.filter(r => {
+      const isValid = r.transcript && r.transcript.trim().length > 0 && 
+                      r.duration && r.duration > 0 && 
+                      r.fillerWordCount !== undefined;
+      if (!isValid) {
+        console.error('Invalid recording data:', r);
+      }
+      return isValid;
+    });
+    
+    if (validRecordings.length === 0) {
+      toast.error("Recording data is incomplete. Please try recording again.");
+      return;
+    }
+    
+    if (validRecordings.length < completedRecordings.length) {
+      toast.warning(
+        `${completedRecordings.length - validRecordings.length} recording(s) had incomplete data and were skipped.`,
+        { duration: 4000 }
+      );
+    }
+    
     if (errorRecordings.length > 0) {
       toast.info(
-        `Showing results for ${completedRecordings.length} completed recording(s). ${errorRecordings.length} failed due to rate limits.`,
+        `Showing results for ${validRecordings.length} completed recording(s). ${errorRecordings.length} failed due to rate limits.`,
         { duration: 5000 }
       );
     }
 
     localStorage.setItem('sessionRecordings', JSON.stringify({
-      recordings: completedRecordings,
+      recordings: validRecordings,
       scenarioTitle: scenarioTitle
     }));
 
